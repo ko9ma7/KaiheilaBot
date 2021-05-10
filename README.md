@@ -14,9 +14,9 @@ const token = "Your Token Here";
 
 ```c#
 var logger = new LoggerConfiguration()
-				.MinimumLevel.Debug()
-				.WriteTo.Console()
-				.CreateLogger();
+		.MinimumLevel.Debug()
+		.WriteTo.Console()
+		.CreateLogger();
 ```
 
 3. 实例化 Bot
@@ -34,10 +34,10 @@ var khlBot = new Bot(token, logger);
 
 4. 订阅 MessageHub 处理 Event
 
-``` c#
+```c#
 var id = Globals.MessageHub.Subscribe<JsonElement>(je =>
 {
-	logger.Debug(je.ToString());
+    logger.Debug(je.ToString());
 });
 ```
 
