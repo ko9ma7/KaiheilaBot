@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>0.1.1</PackageVersion>
+        <PackageVersion>0.1.2</PackageVersion>
         <Title>KaiheilaBot</Title>
         <Authors>Liam Sho</Authors>
         <Description>开黑啦机器人框架，用于快速开发开黑啦机器人</Description>
