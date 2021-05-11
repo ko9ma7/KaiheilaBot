@@ -8,5 +8,7 @@ namespace KaiheilaBot
         public static RestClient RestClient { get; set; }
         
         public static MessageHub MessageHub { get; set; }
+
+        internal static int LatestSn { get; set; }
     }
 }

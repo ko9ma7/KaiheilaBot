@@ -17,7 +17,6 @@ namespace KaiheilaBot.Core
         private BotStatus _status;
         private WebsocketClient _client;
         private ManualResetEvent _event;
-        private int _latestSn;
         private bool _pongReceived;
 
         /// <summary>
@@ -47,7 +46,6 @@ namespace KaiheilaBot.Core
                 return 1;
             }
 
-            _latestSn = 0;
             _event = new ManualResetEvent(false);
 
             using (_client = new WebsocketClient(new Uri(url)))
@@ -164,7 +162,7 @@ namespace KaiheilaBot.Core
                     Log.Information($"发布 Event 信令 Sn = {sn} 数据至 Message Hub，类型：{json.GetType()}");
                     Globals.MessageHub.Publish(json);
                     
-                    _latestSn = sn;
+                    Globals.LatestSn = sn;
                     break;
                 case 3:
                     _pongReceived = true;
@@ -202,8 +200,8 @@ namespace KaiheilaBot.Core
                 _event.Set();
                 return;
             }
-            _client.Send($"{{\"s\":2,\"sn\":{_latestSn.ToString()}}}");
-            Log.Information($"已发送 Ping 信令，Sn = {_latestSn}");
+            _client.Send($"{{\"s\":2,\"sn\":{Globals.LatestSn.ToString()}}}");
+            Log.Information($"已发送 Ping 信令，Sn = {Globals.LatestSn}");
             _pongReceived = false;
         }
 

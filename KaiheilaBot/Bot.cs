@@ -24,6 +24,9 @@ namespace KaiheilaBot
             
             Globals.MessageHub = new MessageHub();
             Log.Information("实例化 Message Hub");
+
+            Globals.LatestSn = 0;
+            Log.Information("重设 Sn 编号");
         }
 
         /// <summary>
