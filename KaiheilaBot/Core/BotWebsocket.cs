@@ -18,7 +18,8 @@ namespace KaiheilaBot.Core
         private BotStatus _status;
         private WebsocketClient _client;
         private ManualResetEvent _event;
-
+        private int _pingTimeoutResentTimes;
+        
         /// <summary>
         /// 初始化 Bot Websocket.
         /// </summary>
@@ -34,12 +35,15 @@ namespace KaiheilaBot.Core
             _pingTimoutTimer = new Timer() {Interval = 6000, Enabled = false, AutoReset = false};
             _pingTimoutTimer.Elapsed += PingTimeout;
             Log.Information("已设置 Ping 超时检测定时器");
+
+            _pingTimeoutResentTimes = 2;
+            Log.Information($"已设置 Ping 超时重试次数：{_pingTimeoutResentTimes}");
         }
 
         /// <summary>
         /// 连接 Websocket，开始获取与预处理信息.
         /// </summary>
-        /// <returns>0：正常退出；1：超时退出；2：收到 Reconnect 信令</returns>
+        /// <returns>0：正常退出；1：超时退出；</returns>
         public async Task<int> Connect()
         {
             var url = await GetWebsocketUrl();
@@ -70,12 +74,7 @@ namespace KaiheilaBot.Core
                 Log.Information("连接已关闭");
             }
 
-            return _status switch
-            {
-                BotStatus.Timeout => 1,
-                BotStatus.Reconnect => 2,
-                _ => 0
-            };
+            return _status == BotStatus.Timeout ? 1 : 0;
         }
         
         /// <summary>
@@ -169,6 +168,13 @@ namespace KaiheilaBot.Core
                     break;
                 case 3:
                     _pingTimoutTimer.Enabled = false;
+                    _pingTimeoutResentTimes = 2;
+                    _status = BotStatus.Established;
+                    if (_pingTimer.Enabled == false)
+                    {
+                        _pingTimer.Enabled = true;
+                        Log.Warning("重新开启 Ping 定时器");
+                    }
                     Log.Information("收到 Pong 信令");
                     break;
                 case 4:
@@ -208,11 +214,22 @@ namespace KaiheilaBot.Core
             Log.Warning("机器人状态：超时");
             
             _pingTimer.Enabled = false; 
-            Log.Information("已关闭 Ping 定时器"); 
-            Log.Fatal("连接超时，准备停止 Websocket Task"); 
-            _event.Set();
+            Log.Information("已关闭 Ping 定时器");
+
+            if (_pingTimeoutResentTimes == 0)
+            {
+                Log.Fatal("连接超时，准备停止 Websocket Task"); 
+                _event.Set();
+            }
+            else
+            {
+                _pingTimeoutResentTimes--;
+                Log.Warning($"将在 {2 * (2 - _pingTimeoutResentTimes)} 秒后重新发送 Ping 信令");
+                Thread.Sleep(2000 * (2 - _pingTimeoutResentTimes));
+                SendingPing(null,null);
+            }
         }
-        
+
         /// <summary>
         /// Bot 状态标志
         /// </summary>
