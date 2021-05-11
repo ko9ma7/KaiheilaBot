@@ -18,6 +18,7 @@ namespace KaiheilaBot.Core
         private BotStatus _status;
         private WebsocketClient _client;
         private ManualResetEvent _event;
+        private int _latestSn;
         private int _pingTimeoutResentTimes;
         
         /// <summary>
@@ -38,6 +39,9 @@ namespace KaiheilaBot.Core
 
             _pingTimeoutResentTimes = 2;
             Log.Information($"已设置 Ping 超时重试次数：{_pingTimeoutResentTimes}");
+
+            _latestSn = 0;
+            Log.Information("已重设 Sn 编号");
         }
 
         /// <summary>
@@ -164,7 +168,7 @@ namespace KaiheilaBot.Core
                     Log.Information($"发布 Event 信令 Sn = {sn} 数据至 Message Hub，类型：{json.GetType()}");
                     Globals.MessageHub.Publish(json);
                     
-                    Globals.LatestSn = sn;
+                    _latestSn = sn;
                     break;
                 case 3:
                     _pingTimoutTimer.Enabled = false;
@@ -197,9 +201,9 @@ namespace KaiheilaBot.Core
         /// <param name="e">Timer Elapsed Event Args</param>
         private void SendingPing(object sender, ElapsedEventArgs e)
         {
-            _client.Send($"{{\"s\":2,\"sn\":{Globals.LatestSn.ToString()}}}");
+            _client.Send($"{{\"s\":2,\"sn\":{_latestSn.ToString()}}}");
             _pingTimoutTimer.Enabled = true;
-            Log.Information($"已发送 Ping 信令，Sn = {Globals.LatestSn}");
+            Log.Information($"已发送 Ping 信令，Sn = {_latestSn}");
         }
 
         /// <summary>
