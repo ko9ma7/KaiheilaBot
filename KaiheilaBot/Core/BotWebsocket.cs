@@ -14,10 +14,10 @@ namespace KaiheilaBot.Core
     internal class BotWebsocket
     {
         private readonly Timer _pingTimer;
+        private readonly Timer _pingTimoutTimer;
         private BotStatus _status;
         private WebsocketClient _client;
         private ManualResetEvent _event;
-        private bool _pongReceived;
 
         /// <summary>
         /// 初始化 Bot Websocket.
@@ -30,6 +30,10 @@ namespace KaiheilaBot.Core
             _pingTimer = new Timer() {Interval = 30000, Enabled = false, AutoReset = true};
             _pingTimer.Elapsed += SendingPing;
             Log.Information("已设置 Ping 定时器");
+
+            _pingTimoutTimer = new Timer() {Interval = 6000, Enabled = false, AutoReset = false};
+            _pingTimoutTimer.Elapsed += PingTimeout;
+            Log.Information("已设置 Ping 超时检测定时器");
         }
 
         /// <summary>
@@ -147,7 +151,6 @@ namespace KaiheilaBot.Core
                 Log.Information("机器人状态：连接建立");
                 
                 _pingTimer.Enabled = true;
-                _pongReceived = true;
                 Log.Information("开启 Ping 定时器");
                 SendingPing(null,null);
                 return;
@@ -165,7 +168,7 @@ namespace KaiheilaBot.Core
                     Globals.LatestSn = sn;
                     break;
                 case 3:
-                    _pongReceived = true;
+                    _pingTimoutTimer.Enabled = false;
                     Log.Information("收到 Pong 信令");
                     break;
                 case 4:
@@ -188,23 +191,28 @@ namespace KaiheilaBot.Core
         /// <param name="e">Timer Elapsed Event Args</param>
         private void SendingPing(object sender, ElapsedEventArgs e)
         {
-            if (_pongReceived == false)
-            {
-                Log.Error("未在时间内收到 Pong 信令");
-                _status = BotStatus.Timeout;
-                Log.Warning("机器人状态：超时");
-                
-                _pingTimer.Enabled = false;
-                Log.Information("已关闭 Ping 定时器");
-                Log.Fatal("连接超时，准备停止 Websocket Task");
-                _event.Set();
-                return;
-            }
             _client.Send($"{{\"s\":2,\"sn\":{Globals.LatestSn.ToString()}}}");
+            _pingTimoutTimer.Enabled = true;
             Log.Information($"已发送 Ping 信令，Sn = {Globals.LatestSn}");
-            _pongReceived = false;
         }
 
+        /// <summary>
+        /// Ping 超时，未再时间内收到 Pong，停止 Task
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PingTimeout(object sender, ElapsedEventArgs e)
+        {
+            Log.Error("未在时间内收到 Pong 信令"); 
+            _status = BotStatus.Timeout; 
+            Log.Warning("机器人状态：超时");
+            
+            _pingTimer.Enabled = false; 
+            Log.Information("已关闭 Ping 定时器"); 
+            Log.Fatal("连接超时，准备停止 Websocket Task"); 
+            _event.Set();
+        }
+        
         /// <summary>
         /// Bot 状态标志
         /// </summary>
