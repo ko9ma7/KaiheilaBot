@@ -24,9 +24,6 @@ namespace KaiheilaBot
             
             Globals.MessageHub = new MessageHub();
             Log.Information("实例化 Message Hub");
-
-            Globals.LatestSn = 0;
-            Log.Information("重设 Sn 编号");
         }
 
         /// <summary>
@@ -45,15 +42,25 @@ namespace KaiheilaBot
                     status = await new BotWebsocket().Connect();
                     if (status == 1)
                     {
-                        Log.Error("连接超时，准备重连...");
+                        Log.Error("连接超时，已开启自动重连，将在 10 秒后重新开启连接");
                     }
+                    else
+                    {
+                        Log.Warning("Websocket 连接关闭...已开启自动重连，将在 10 秒后重新开启连接");
+                    }
+                    await Task.Delay(10000);
                 }
             }
             else
             {
-                while (status == 2)
+                status = await new BotWebsocket().Connect();
+                if (status == 0)
                 {
-                    status = await new BotWebsocket().Connect();
+                    Log.Information("Websocket 连接关闭...正常退出");
+                }
+                else
+                {
+                    Log.Warning("连接超时，未开启自动重连");
                 }
             }
             Log.Information("已退出");
