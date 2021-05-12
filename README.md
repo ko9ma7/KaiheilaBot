@@ -31,10 +31,9 @@ var khlBot = new Bot(token, logger);
 
 如果未传入 Serilog 实例 `logger` ，将不会记录和输出日志（***不推荐*** ）
 
-在实例化之后，你可以调用 `KaiheilaBot.Globals` 类中的两个静态成员
+在实例化之后，你可以调用 `KaiheilaBot.Globals` 类中的一个静态成员
 
 * `Easy.MessageHub.MessageHub MessageHub` 简单的 Pub-Sub 模式消息队列，所有 Event 信令将会发送至此，请参考步骤4
-* `RestSharp.RestClient RestClient` 一个用于发送 Http 请求的客户端，已经使用 token 添加了默认的身份验证 Header，具体使用请参考 [Getting Started | RestSharp](https://restsharp.dev/getting-started/getting-started.html#basic-usage)
 
 5. 订阅 MessageHub 处理 Event
 
@@ -47,7 +46,24 @@ var id = Globals.MessageHub.Subscribe<JsonElement>(je =>
 
 MessageHub 保存 `System.Text.Json.JsonElement` 类实例，实例为 Websocket 返回的 Event 信令 Json 数据的根元素，请参考 [JsonElement Struct (System.Text.Json) | Microsoft Docs](https://docs.microsoft.com/en-us/dotnet/api/system.text.json.jsonelement?view=net-5.0) 和 [开黑啦开发者文档]([Websocket (kaiheila.cn)](https://developer.kaiheila.cn/doc/websocket#信令[0] EVENT))
 
-6. 运行 Bot
+6. 发送 HTTP 请求
+
+在实例化 Bot 之后，你可以使用已封装好的 `KaiheilaBot.Core.BotRequest` 类发送 Http 请求
+
+```c#
+var response = await new BotRequest()
+        .SetUrl("guild/list")
+        .SetMethod(Method.GET)  // BotRequest
+        .GetResponse();  // Task<RestResponse>
+```
+
+* `SetUrl(string url)` 设置请求地址，已添加基地址：https://www.kaiheila.cn/api/v3
+* `SetMethod(Method method)` 设置请求方法
+* `AddParameter<T>(string parameterName, T parameter)` 设置 Parameter
+* `AddFile(string filePath)` 添加文件，不可与其他设置共用，不需要设置 Parameter， Method 和 Url，将调用 [上传媒体文件](https://developer.kaiheila.cn/doc/http/asset) 接口
+* `async Task<RestResponse> GetResponse()` （可等待）获取 Response
+
+7. 运行 Bot
 
 ```c#
 await khlBot.StartApp();
