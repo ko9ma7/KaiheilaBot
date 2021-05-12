@@ -91,9 +91,11 @@ namespace KaiheilaBot.Core
             for (var i = 1; i <= 3; i++)
             {
                 Log.Information($"第 {i.ToString()} 次尝试获取 Websocket Url");
-                var request = new RestRequest("gateway/index", Method.GET);
-                request.AddParameter("compress", "0");
-                var response = await Globals.RestClient.ExecuteAsync(request);
+                var response = await new BotRequest()
+                    .SetUrl("gateway/index")
+                    .SetMethod(Method.GET)
+                    .AddParameter<int>("compress", 0)
+                    .GetResponse();
                 
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
