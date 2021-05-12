@@ -2,31 +2,31 @@ using Serilog.Core;
 
 namespace KaiheilaBot
 {
-    public static class Log
+    internal static class Log
     {
-        public static Logger Logger;
+        internal static Logger Logger;
 
-        public static void Debug(string message)
+        internal static void Debug(string message)
         {
             Logger?.Debug(message);
         }
         
-        public static void Information(string message)
+        internal static void Information(string message)
         {
             Logger?.Information(message);
         }
         
-        public static void Warning(string message)
+        internal static void Warning(string message)
         {
             Logger?.Warning(message);
         }
         
-        public static void Error(string message)
+        internal static void Error(string message)
         {
             Logger?.Error(message);
         }
         
-        public static void Fatal(string message)
+        internal static void Fatal(string message)
         {
             Logger?.Fatal(message);
         }
