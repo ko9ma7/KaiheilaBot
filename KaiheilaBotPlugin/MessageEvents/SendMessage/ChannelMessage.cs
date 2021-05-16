@@ -1,7 +1,7 @@
 ﻿
 namespace KaiheilaBot
 {
-    public class ChannelMessage:AbstractMessageType
+    public class ChannelMessage : AbstractMessageType
     {
         public ChannelMessage(ReceiveMessageData request, string content, bool quote = true, bool tempMessage = false)
         {

@@ -3,7 +3,7 @@ using Serilog;
 
 namespace KaiheilaBot
 {
-    public class LogService: ILogService
+    public class LogService : ILogService
     {
         private ILogger FileLogger;
         private ILogger ConsoleLogger;

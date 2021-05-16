@@ -1,6 +1,7 @@
 ﻿using KaiheilaBot;
 using KaiheilaBot.Interface;
 using KaiheilaBot.Models;
+using SimpleInjector;
 using System;
 using System.Threading.Tasks;
 
@@ -10,12 +11,12 @@ namespace TestPlugin
     {
         public EventType HandleType => EventType.ChannelTextMessage;
 
-        public Task PluginLoad(IServiceProvider container)
+        public Task PluginLoad(Container container)
         {
             return null;
         }
 
-        public Task PluginUnload(IServiceProvider container)
+        public Task PluginUnload(Container container)
         {
             return null;
         }

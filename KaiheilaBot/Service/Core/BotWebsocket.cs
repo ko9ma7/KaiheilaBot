@@ -1,21 +1,21 @@
-using System;
-using System.Net;
-using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
 using Easy.MessageHub;
 using KaiheilaBot.Interface;
 using KaiheilaBot.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using System;
+using System.Net;
+using System.Net.WebSockets;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Timers;
 using Websocket.Client;
 using Timer = System.Timers.Timer;
 
 namespace KaiheilaBot.Core
 {
-    public class BotWebsocket: IBotWebSocket
+    public class BotWebsocket : IBotWebSocket
     {
         private readonly Timer _pingTimer;
         private readonly Timer _pingTimoutTimer;
@@ -37,12 +37,12 @@ namespace KaiheilaBot.Core
             Log = logger;
             _status = BotStatus.Initialized;
             Log.Information("机器人状态：初始化");
-            
-            _pingTimer = new Timer() {Interval = 30000, Enabled = false, AutoReset = true};
+
+            _pingTimer = new Timer() { Interval = 30000, Enabled = false, AutoReset = true };
             _pingTimer.Elapsed += SendingPing;
             Log.Information("已设置 Ping 定时器");
 
-            _pingTimoutTimer = new Timer() {Interval = 6000, Enabled = false, AutoReset = false};
+            _pingTimoutTimer = new Timer() { Interval = 6000, Enabled = false, AutoReset = false };
             _pingTimoutTimer.Elapsed += PingTimeout;
             Log.Information("已设置 Ping 超时检测定时器");
 
@@ -73,23 +73,23 @@ namespace KaiheilaBot.Core
             {
                 Log.Information("已建立 Websocket Client");
                 _client.ReconnectTimeout = null;
-                
+
                 _client.MessageReceived.Subscribe(MessageProcessor);
                 Log.Information("已订阅 Message Received 事件");
-                
+
                 Log.Information("开始连接");
 
                 var task = _client.Start();
                 task.Wait();
 
                 _event.WaitOne();
-                
+
                 Log.Information("连接已关闭");
             }
 
             return _status == BotStatus.Timeout ? 1 : 0;
         }
-        
+
         /// <summary>
         /// 从 Gateway 获取 Websocket Url. 将会尝试获取 3 次，失败将会返回 Null.
         /// </summary>
@@ -110,12 +110,12 @@ namespace KaiheilaBot.Core
             {
                 Log.Information($"第 {i.ToString()} 次尝试获取 Websocket Url");
                 var response = await prepareRequest.GetResponse();
-                
+
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     if (i != 3)
                     {
-                        Log.Warning($"第 {i.ToString()} 次获取 Websocket Url 失败，将在 {2*i} 秒后重试");
+                        Log.Warning($"第 {i.ToString()} 次获取 Websocket Url 失败，将在 {2 * i} 秒后重试");
                         await Task.Delay(2000 * i);
                     }
                     else
@@ -124,21 +124,21 @@ namespace KaiheilaBot.Core
                     }
                     continue;
                 }
-                
+
                 Log.Information("从 Gateway 获取 Websocket Url 成功");
                 var data = response.Content;
                 var json = JsonConvert.DeserializeObject<JToken>(data);
                 var url = json.Value<JToken>("data").Value<string>("url");
-                
+
                 _status = BotStatus.Gateway;
                 Log.Information("机器人状态：已获取 Websocket Url");
-                
+
                 return url;
             }
             Log.Fatal("获取 Websocket Url 失败");
             return null;
         }
-        
+
         /// <summary>
         /// Message 预处理
         /// </summary>
@@ -160,7 +160,7 @@ namespace KaiheilaBot.Core
                     Log.Error("收到未知格式信息");
                     return;
             }
-            
+
             var json = JsonConvert.DeserializeObject<JObject>(message.Text);
             var type = json.Value<int>("s");
             if (type == 1)
@@ -168,10 +168,10 @@ namespace KaiheilaBot.Core
                 Log.Information("收到 Hello 信令，连接建立");
                 _status = BotStatus.Established;
                 Log.Information("机器人状态：连接建立");
-                
+
                 _pingTimer.Enabled = true;
                 Log.Information("开启 Ping 定时器");
-                SendingPing(null,null);
+                SendingPing(null, null);
                 return;
             }
 
@@ -180,10 +180,10 @@ namespace KaiheilaBot.Core
                 case 0:
                     var sn = json.Value<long>("sn");
                     Log.Information($"收到 Event 信令，Sn = {sn}");
-                    
+
                     Log.Information($"发布 Event 信令 Sn = {sn} 数据至 Message Hub. ");
                     messageHub.Publish(json.ToObject<ReceiveMessage>());
-                    
+
                     _latestSn = sn;
                     break;
                 case 3:
@@ -229,16 +229,16 @@ namespace KaiheilaBot.Core
         /// <param name="e"></param>
         private void PingTimeout(object sender, ElapsedEventArgs e)
         {
-            Log.Error("未在时间内收到 Pong 信令"); 
-            _status = BotStatus.Timeout; 
+            Log.Error("未在时间内收到 Pong 信令");
+            _status = BotStatus.Timeout;
             Log.Warning("机器人状态：超时");
-            
-            _pingTimer.Enabled = false; 
+
+            _pingTimer.Enabled = false;
             Log.Information("已关闭 Ping 定时器");
 
             if (_pingTimeoutResentTimes == 0)
             {
-                Log.Fatal("连接超时，准备停止 Websocket Task"); 
+                Log.Fatal("连接超时，准备停止 Websocket Task");
                 _event.Set();
             }
             else
@@ -246,14 +246,14 @@ namespace KaiheilaBot.Core
                 _pingTimeoutResentTimes--;
                 Log.Warning($"将在 {2 * (2 - _pingTimeoutResentTimes)} 秒后重新发送 Ping 信令");
                 Thread.Sleep(2000 * (2 - _pingTimeoutResentTimes));
-                SendingPing(null,null);
+                SendingPing(null, null);
             }
         }
 
         /// <summary>
         /// Bot 状态标志
         /// </summary>
-        private enum BotStatus 
+        private enum BotStatus
         {
             /// <summary>
             /// Bot 初始化

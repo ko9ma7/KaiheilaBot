@@ -1,17 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
 using KaiheilaBot.Interface;
 using KaiheilaBot.Models;
-using Newtonsoft.Json.Linq;
 using RestSharp;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace KaiheilaBot.Core
 {
-    public class BotRequest: IBotRequest
+    public class BotRequest : IBotRequest
     {
-        private Dictionary<string, string> Parameters { get;}
+        private Dictionary<string, string> Parameters { get; }
         private Method Method { get; set; }
         private string Url { get; set; }
         private string FilePath { get; set; }
@@ -42,7 +40,7 @@ namespace KaiheilaBot.Core
             Parameters.Add(parameterName, param);
             return this;
         }
-        
+
         /// <summary>
         /// 设置 Http 请求方法
         /// </summary>
@@ -82,7 +80,7 @@ namespace KaiheilaBot.Core
             Method = Method.POST;
             return this;
         }
-        
+
         /// <summary>
         /// 运行 Request 来获取 Response
         /// </summary>
@@ -92,7 +90,7 @@ namespace KaiheilaBot.Core
             var request = new RestRequest(Url, Method);
             if (FilePath == null)
             {
-                foreach (var (key,value) in Parameters)
+                foreach (var (key, value) in Parameters)
                 {
                     request.AddParameter(key, value);
                 }
@@ -104,13 +102,13 @@ namespace KaiheilaBot.Core
             }
 
             var response = await rest.ExecuteAsync(request);
-            return (RestResponse) response;
+            return (RestResponse)response;
         }
 
         public IBotRequest AddJToken(AbstractMessageType obj)
         {
             var props = obj.GetType().GetProperties();
-            foreach(var prop in props)
+            foreach (var prop in props)
             {
                 if (prop.GetValue(obj) != null)
                     Parameters.Add(prop.Name.ToLower(), prop.GetValue(obj).ToString());

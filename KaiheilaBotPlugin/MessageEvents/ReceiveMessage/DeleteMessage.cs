@@ -2,7 +2,7 @@
 
 namespace KaiheilaBot
 {
-    public class DeleteMessage:Extra
+    public class DeleteMessage : Extra
     {
         [JsonProperty("channel_id")]
         public string ChannelId { get; set; }

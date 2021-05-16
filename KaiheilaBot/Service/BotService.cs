@@ -1,11 +1,9 @@
-using System.Threading.Tasks;
-using KaiheilaBot.Core;
 using KaiheilaBot.Interface;
-using KaiheilaBot.Models;
+using System.Threading.Tasks;
 
 namespace KaiheilaBot
 {
-    public class BotService:IBotService
+    public class BotService : IBotService
     {
         private readonly ILogService logger;
         private readonly IBotWebSocket botWebsocket;

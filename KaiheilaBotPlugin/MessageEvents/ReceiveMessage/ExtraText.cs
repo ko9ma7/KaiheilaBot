@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace KaiheilaBot
 {
-    public class ExtraText:Extra
+    public class ExtraText : Extra
     {
         [JsonProperty("guid_id")]
         public string Guid { get; set; }

@@ -2,7 +2,7 @@
 
 namespace KaiheilaBot
 {
-    public class UpdateMessage:Extra
+    public class UpdateMessage : Extra
     {
         [JsonProperty("channel_id")]
         public string ChannelId { get; set; }

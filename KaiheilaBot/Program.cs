@@ -1,7 +1,4 @@
-﻿using KaiheilaBot;
-using System;
-
-namespace KaiheilaBot
+﻿namespace KaiheilaBot
 {
     class Program
     {

@@ -1,5 +1,5 @@
 ﻿using KaiheilaBot.Models;
-using System;
+using SimpleInjector;
 using System.Threading.Tasks;
 
 namespace KaiheilaBot.Interface
@@ -24,12 +24,12 @@ namespace KaiheilaBot.Interface
         /// </summary>
         /// <param name="container">SimpleInjector DI Container</param>
         /// <returns></returns>
-        public Task PluginLoad(IServiceProvider container);
+        public Task PluginLoad(Container container);
         /// <summary>
         /// 插件关闭的时候可进行收拾工作
         /// </summary>
         /// <param name="container">SimpleInjector DI Container</param>
         /// <returns></returns>
-        public Task PluginUnload(IServiceProvider container);
+        public Task PluginUnload(Container container);
     }
 }

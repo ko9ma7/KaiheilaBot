@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace KaiheilaBot.Interface
+﻿namespace KaiheilaBot.Interface
 {
     /// <summary>
     /// 日志处理器

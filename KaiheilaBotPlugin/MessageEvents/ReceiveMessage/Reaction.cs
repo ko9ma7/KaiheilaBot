@@ -2,7 +2,7 @@
 
 namespace KaiheilaBot
 {
-    public class Reaction:Extra
+    public class Reaction : Extra
     {
         [JsonProperty("channel_id")]
         public string ChannelId { get; set; }

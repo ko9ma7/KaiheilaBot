@@ -1,16 +1,12 @@
 ﻿using KaiheilaBot.Core;
 using KaiheilaBot.Interface;
+using KaiheilaBot.Interface.Services;
 using KaiheilaBot.Models;
 using KaiheilaBot.Service;
 using SimpleInjector;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Loader;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace KaiheilaBot
@@ -20,11 +16,10 @@ namespace KaiheilaBot
     /// </summary>
     public class BotWrapper
     {
-        private readonly IList<string> tempDlls = new List<string>();
+
         private readonly Container Container;
         private ILogService log;
-        private IList<IPlugin> plugins = new List<IPlugin>();
-        private AssemblyLoadContext context = new AssemblyLoadContext("plugin", true);
+        private IPluginLoader<IPlugin> pluginLoader;
         /// <summary>
         /// 创建Bot
         /// </summary>
@@ -39,6 +34,7 @@ namespace KaiheilaBot
             Container.Register<Shared>(Lifestyle.Singleton);
             Container.Register<Config>(Lifestyle.Singleton);
             Container.Register<IConsole, ConsoleService>();
+            Container.Register<IPluginLoader<IPlugin>, PluginService<IPlugin>>();
         }
         /// <summary>
         /// 启动机器人所有功能
@@ -77,7 +73,7 @@ namespace KaiheilaBot
         /// <param name="e"></param>
         private void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
-            RemoveCache();
+            pluginLoader.Unload(Container);
         }
         /// <summary>
         /// 综合分类给各插件的Handle功能
@@ -88,13 +84,13 @@ namespace KaiheilaBot
         private async Task Handle(ReceiveMessage message, IList<IPlugin> plugins)
         {
             var completed = false;
-            foreach(var plugin in plugins)
+            foreach (var plugin in plugins)
             {
                 if (completed)
                 {
                     return;
                 }
-                switch(plugin.HandleType)
+                switch (plugin.HandleType)
                 {
                     case EventType.ChannelTextMessage:
                         if (message.Data.Extra is ExtraText)
@@ -107,7 +103,7 @@ namespace KaiheilaBot
                         }
                         break;
                     case EventType.BotInvited:
-                        if(message.Data.Extra is Invited)
+                        if (message.Data.Extra is Invited)
                         {
                             completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
@@ -176,6 +172,21 @@ namespace KaiheilaBot
             }
 
         }
+
+        /// <summary>
+        /// 注册插件
+        /// </summary>
+        private async void Register()
+        {
+            var hub = Container.GetInstance<Shared>();
+            hub.messageHub.ClearSubscriptions();
+            pluginLoader = Container.GetInstance<IPluginLoader<IPlugin>>();
+            var plugins = await pluginLoader.Load(Container);
+            hub.messageHub.Subscribe<ReceiveMessage>(async message =>
+            {
+                await Handle(message, plugins);
+            });
+        }
         /// <summary>
         /// 检测到Plugin文件夹的改动后自动重载所有插件用
         /// </summary>
@@ -183,101 +194,8 @@ namespace KaiheilaBot
         /// <param name="e"></param>
         private void OnChanged(object source, FileSystemEventArgs e)
         {
-            context.Unload();
-            context = null;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            RemoveCache();
-            context = new AssemblyLoadContext("plugin", true);
+            pluginLoader.Unload(Container);
             Register();
-        }
-        /// <summary>
-        /// 注册插件
-        /// </summary>
-        private async void Register()
-        {
-            var type = typeof(IPlugin);
-            var hub = Container.GetInstance<Shared>();
-            hub.messageHub.ClearSubscriptions();
-            foreach (var file in Directory.GetFiles("Plugin", "*.dll", SearchOption.AllDirectories))
-            {
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                {
-                    if (!Directory.Exists("Temp"))
-                    {
-                        Directory.CreateDirectory("Temp");
-                    }
-                    var temp = Path.Combine(Environment.CurrentDirectory, "Temp", Path.GetRandomFileName());
-                    tempDlls.Add(temp);
-                    File.Copy(file, temp, true);
-                    try
-                    {
-                        var assembly = context.LoadFromAssemblyPath(temp);
-                        foreach (var i in assembly.GetTypes().Where(p => type.IsAssignableFrom(p) && !p.IsInterface && !p.IsAbstract))
-                        {
-                            var plugin = (IPlugin)Activator.CreateInstance(i);
-                            await plugin.PluginLoad(Container);
-                            plugins.Add(plugin);
-                            log.Debug(plugin.GetType().Name + " 插件已注册！");
-                        }
-                    }
-                    catch(Exception ex)
-                    {
-                        //dll 加载错误，无视
-                        log.Error(file + " 插件加载失败！" + ex.Message);
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        var assembly = Assembly.LoadFrom(file);
-                        foreach (var i in assembly.GetTypes().Where(p => type.IsAssignableFrom(p) && !p.IsInterface && !p.IsAbstract))
-                        {
-                            var plugin = (IPlugin)Activator.CreateInstance(i);
-                            plugins.Add(plugin);
-                            log.Debug(plugin.GetType().Name + " 插件已注册！");
-                        }
-                    }
-                    catch
-                    {
-
-                    }
-
-                }
-            }
-            hub.messageHub.Subscribe<ReceiveMessage>(async message => {
-                await Handle(message, plugins);
-            });
-        }
-        /// <summary>
-        /// 删除掉缓存文件
-        /// </summary>
-        private async void RemoveCache()
-        {
-            log.Information("正在卸载插件...");
-            foreach (var plugin in plugins)
-            {
-                await plugin.PluginUnload(Container);
-            }
-            plugins.Clear();
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                try
-                {
-                    StringBuilder sb = new StringBuilder();
-                    foreach (var temp in tempDlls)
-                    {
-                        sb.AppendLine("del /f " + temp);
-                    }
-                    sb.AppendLine("(goto) 2>nul & del \"%~f0\"");
-                    File.WriteAllText("remove.bat", sb.ToString());
-                    Process.Start("remove.bat");
-                }
-                catch{
-
-                }
-            }
         }
     }
 }

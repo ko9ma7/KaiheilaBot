@@ -1,9 +1,8 @@
-using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace KaiheilaBot
 {
-    public class NewChannel:Extra
+    public class NewChannel : Extra
     {
         public string id { get; set; }
         public string name { get; set; }

@@ -1,9 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace KaiheilaBot
+﻿namespace KaiheilaBot
 {
     public abstract class AbstractMessageType
     {
-        
+
     }
 }

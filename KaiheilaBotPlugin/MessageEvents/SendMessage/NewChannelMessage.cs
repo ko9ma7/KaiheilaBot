@@ -1,6 +1,6 @@
 ﻿namespace KaiheilaBot
 {
-    public class NewChannelMessage:AbstractMessageType
+    public class NewChannelMessage : AbstractMessageType
     {
         public NewChannelMessage(string server_guid, string name)
         {

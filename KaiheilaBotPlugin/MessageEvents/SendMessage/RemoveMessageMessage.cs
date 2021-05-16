@@ -2,7 +2,7 @@
 
 namespace KaiheilaBot
 {
-    public class RemoveMessageMessage:AbstractMessageType
+    public class RemoveMessageMessage : AbstractMessageType
     {
         public RemoveMessageMessage(string msg_id)
         {

@@ -1,7 +1,7 @@
 ﻿
 namespace KaiheilaBot
 {
-    public class GetChannelMessage:AbstractMessageType
+    public class GetChannelMessage : AbstractMessageType
     {
         public GetChannelMessage(string guild_id)
         {

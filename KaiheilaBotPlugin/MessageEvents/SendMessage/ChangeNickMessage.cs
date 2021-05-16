@@ -1,7 +1,7 @@
 ﻿
 namespace KaiheilaBot
 {
-    public class ChangeNickMessage:AbstractMessageType
+    public class ChangeNickMessage : AbstractMessageType
     {
         public ChangeNickMessage(string guid, string newnick, string user_id)
         {

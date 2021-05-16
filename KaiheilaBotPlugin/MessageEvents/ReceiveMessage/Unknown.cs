@@ -1,7 +1,7 @@
 ﻿
 namespace KaiheilaBot
 {
-    public class Unknown:Extra
+    public class Unknown : Extra
     {
 
     }
