@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using KaiheilaBot.Interface;
 using KaiheilaBot.Models;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 
 namespace KaiheilaBot.Core
@@ -98,11 +100,22 @@ namespace KaiheilaBot.Core
             else
             {
                 request.AddHeader("Content-Type", "multipart/form-data");
-                request.AddFile("file", FilePath); 
+                request.AddFile("file", FilePath);
             }
 
             var response = await rest.ExecuteAsync(request);
             return (RestResponse) response;
+        }
+
+        public IBotRequest AddJToken(AbstractMessageType obj)
+        {
+            var props = obj.GetType().GetProperties();
+            foreach(var prop in props)
+            {
+                if (prop.GetValue(obj) != null)
+                    Parameters.Add(prop.Name.ToLower(), prop.GetValue(obj).ToString());
+            }
+            return this;
         }
     }
 }

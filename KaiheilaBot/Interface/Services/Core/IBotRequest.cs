@@ -1,4 +1,5 @@
-﻿using RestSharp;
+﻿using Newtonsoft.Json.Linq;
+using RestSharp;
 using System.Threading.Tasks;
 
 namespace KaiheilaBot.Interface
@@ -9,6 +10,7 @@ namespace KaiheilaBot.Interface
         IBotRequest SetMethod(Method method);
         IBotRequest SetUrl(string url);
         IBotRequest AddFile(string filePath);
+        IBotRequest AddJToken(AbstractMessageType obj);
         Task<RestResponse> GetResponse();
     }
 }

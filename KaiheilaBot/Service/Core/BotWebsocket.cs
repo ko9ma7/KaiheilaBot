@@ -1,13 +1,14 @@
 using System;
 using System.Net;
 using System.Net.WebSockets;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Easy.MessageHub;
 using KaiheilaBot.Interface;
 using KaiheilaBot.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using Websocket.Client;
 using Timer = System.Timers.Timer;
@@ -21,7 +22,7 @@ namespace KaiheilaBot.Core
         private BotStatus _status;
         private WebsocketClient _client;
         private ManualResetEvent _event;
-        private int _latestSn;
+        private long _latestSn;
         private int _pingTimeoutResentTimes;
         private readonly ILogService Log;
         private readonly IBotRequest botRequest;
@@ -126,8 +127,8 @@ namespace KaiheilaBot.Core
                 
                 Log.Information("从 Gateway 获取 Websocket Url 成功");
                 var data = response.Content;
-                var json = JsonDocument.Parse(data).RootElement;
-                var url = json.GetProperty("data").GetProperty("url").GetString();
+                var json = JsonConvert.DeserializeObject<JToken>(data);
+                var url = json.Value<JToken>("data").Value<string>("url");
                 
                 _status = BotStatus.Gateway;
                 Log.Information("机器人状态：已获取 Websocket Url");
@@ -160,8 +161,8 @@ namespace KaiheilaBot.Core
                     return;
             }
             
-            var json = JsonDocument.Parse(message.Text).RootElement;
-            var type = json.GetProperty("s").GetInt32();
+            var json = JsonConvert.DeserializeObject<JObject>(message.Text);
+            var type = json.Value<int>("s");
             if (type == 1)
             {
                 Log.Information("收到 Hello 信令，连接建立");
@@ -177,11 +178,11 @@ namespace KaiheilaBot.Core
             switch (type)
             {
                 case 0:
-                    var sn = json.GetProperty("sn").GetInt32();
+                    var sn = json.Value<long>("sn");
                     Log.Information($"收到 Event 信令，Sn = {sn}");
                     
-                    Log.Information($"发布 Event 信令 Sn = {sn} 数据至 Message Hub，类型：{json.GetType()}");
-                    messageHub.Publish(json);
+                    Log.Information($"发布 Event 信令 Sn = {sn} 数据至 Message Hub. ");
+                    messageHub.Publish(json.ToObject<ReceiveMessage>());
                     
                     _latestSn = sn;
                     break;

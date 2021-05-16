@@ -1,13 +1,15 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Text.Json;
 
 namespace KaiheilaBot.Models
 {
     public class Config
     {
+        private JToken dataConfig;
         /// <summary>
         /// 用于框架使用config
         /// </summary>
@@ -15,8 +17,12 @@ namespace KaiheilaBot.Models
         {
             if (!File.Exists("config.json"))
             {
-                File.WriteAllText("config.json", JsonSerializer.Serialize(new Config(true)));
+                File.WriteAllText("config.json", JsonConvert.SerializeObject(new Config(true), Formatting.Indented));
                 throw new FileNotFoundException("不存在config.json，将会自动创建！请在设置好config.json后再打开！");
+            }
+            else
+            {
+                dataConfig = JsonConvert.DeserializeObject<JToken>(File.ReadAllText("config.json"));
             }
         }
         /// <summary>
@@ -28,6 +34,12 @@ namespace KaiheilaBot.Models
 
         }
 
-        public string Token { get; set; }
+        public string Token
+        {
+            get
+            {
+                return dataConfig?.Value<string>("Token");
+            }
+        }
     }
 }

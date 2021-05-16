@@ -1,7 +1,7 @@
 ﻿using KaiheilaBot;
 using System;
 
-namespace TestBot
+namespace KaiheilaBot
 {
     class Program
     {

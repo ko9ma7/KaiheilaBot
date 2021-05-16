@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using KaiheilaBot.Core;
 using KaiheilaBot.Interface;
+using KaiheilaBot.Models;
 
 namespace KaiheilaBot
 {
@@ -24,10 +25,10 @@ namespace KaiheilaBot
         /// 开始运行机器人，此方法需要等待
         /// </summary>
         /// <param name="autoReconnect">是否在超时后自动重连，默认为 true</param>
-        public async Task StartApp(bool autoReconnect = true)
+        public async virtual Task StartApp(bool autoReconnect = true)
         {
             logger.Information("正在启动...");
-            logger.Information("自动重连：" + (autoReconnect == true ? "开启" : "关闭"));
+            logger.Information("自动重连：" + (autoReconnect ? "开启" : "关闭"));
             var status = 2;
             if (autoReconnect == true)
             {

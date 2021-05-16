@@ -1,39 +1,45 @@
 using KaiheilaBot.Interface;
 using Serilog;
-using Serilog.Core;
 
 namespace KaiheilaBot
 {
     public class LogService: ILogService
     {
-        private ILogger Logger;
+        private ILogger FileLogger;
+        private ILogger ConsoleLogger;
         public LogService()
         {
-            Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.File(@"Log\\Log-{Date}.txt", rollingInterval: RollingInterval.Day).CreateLogger();
+            FileLogger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.File(@"Log\\Log.txt", rollingInterval: RollingInterval.Day, shared: true).CreateLogger();
+            ConsoleLogger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.Console().CreateLogger();
         }
         public void Debug(string message)
         {
-            Logger?.Debug(message);
+            FileLogger?.Debug(message);
+            ConsoleLogger?.Debug(message);
         }
 
         public void Information(string message)
         {
-            Logger?.Information(message);
+            FileLogger?.Information(message);
+            ConsoleLogger?.Information(message);
         }
 
         public void Warning(string message)
         {
-            Logger?.Warning(message);
+            FileLogger?.Warning(message);
+            ConsoleLogger?.Warning(message);
         }
 
         public void Error(string message)
         {
-            Logger?.Error(message);
+            FileLogger?.Error(message);
+            ConsoleLogger?.Error(message);
         }
 
         public void Fatal(string message)
         {
-            Logger?.Fatal(message);
+            FileLogger?.Fatal(message);
+            ConsoleLogger?.Fatal(message);
         }
     }
 }
