@@ -46,10 +46,24 @@ namespace KaiheilaBot
             {
                 Directory.CreateDirectory("Plugin");
             }
-            FileSystemWatcher watcher = new FileSystemWatcher();
-            watcher.Path = "Plugin";
+            if(Directory.Exists("Temp"))
+            {
+                foreach(var temp in Directory.GetFiles("Temp", "*.*", SearchOption.AllDirectories))
+                {
+                    try
+                    {
+                        File.Delete(temp);
+                    }
+                    catch
+                    {
+                        //Unable to delete, maybe next time
+                    }
+                }
+            }
+            FileSystemWatcher watcher = new FileSystemWatcher("Plugin");
             watcher.IncludeSubdirectories = true;
-            watcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.LastWrite | NotifyFilters.Size;
+            watcher.NotifyFilter = NotifyFilters.Attributes | NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.CreationTime | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            watcher.Filter = "*.dll";
             watcher.Changed += new FileSystemEventHandler(OnChanged);
             watcher.Created += new FileSystemEventHandler(OnChanged);
             watcher.Deleted += new FileSystemEventHandler(OnChanged);
@@ -74,6 +88,30 @@ namespace KaiheilaBot
         private void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
             pluginLoader.Unload(Container);
+        }
+        /// <summary>
+        /// 注册插件
+        /// </summary>
+        private async void Register()
+        {
+            var hub = Container.GetInstance<Shared>();
+            hub.messageHub.ClearSubscriptions();
+            pluginLoader = Container.GetInstance<IPluginLoader<IPlugin>>();
+            var plugins = await pluginLoader.Load(Container);
+            hub.messageHub.Subscribe<ReceiveMessage>(async message =>
+            {
+                await Handle(message, plugins);
+            });
+        }
+        /// <summary>
+        /// 检测到Plugin文件夹的改动后自动重载所有插件用
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
+        private void OnChanged(object source, FileSystemEventArgs e)
+        {
+            pluginLoader.Unload(Container);
+            Register();
         }
         /// <summary>
         /// 综合分类给各插件的Handle功能
@@ -171,31 +209,6 @@ namespace KaiheilaBot
                 }
             }
 
-        }
-
-        /// <summary>
-        /// 注册插件
-        /// </summary>
-        private async void Register()
-        {
-            var hub = Container.GetInstance<Shared>();
-            hub.messageHub.ClearSubscriptions();
-            pluginLoader = Container.GetInstance<IPluginLoader<IPlugin>>();
-            var plugins = await pluginLoader.Load(Container);
-            hub.messageHub.Subscribe<ReceiveMessage>(async message =>
-            {
-                await Handle(message, plugins);
-            });
-        }
-        /// <summary>
-        /// 检测到Plugin文件夹的改动后自动重载所有插件用
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="e"></param>
-        private void OnChanged(object source, FileSystemEventArgs e)
-        {
-            pluginLoader.Unload(Container);
-            Register();
         }
     }
 }

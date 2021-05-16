@@ -1,32 +1,17 @@
 ﻿using KaiheilaBot;
-using KaiheilaBot.Interface;
 using KaiheilaBot.Models;
-using SimpleInjector;
 using System;
 using System.Threading.Tasks;
 
 namespace TestPlugin
 {
-    public class Class1 : IPlugin
+    public class Class1 : ChannelMessageHandler
     {
-        public EventType HandleType => EventType.ChannelTextMessage;
-
-        public Task PluginLoad(Container container)
+        public override async Task<bool> HandleMessage(TextMessageEventArgs eventArgs)
         {
-            return null;
-        }
-
-        public Task PluginUnload(Container container)
-        {
-            return null;
-        }
-
-        public async Task<bool> Handle(MessageEventArgs eventArgs)
-        {
-            var t = (TextMessageEventArgs)eventArgs;
-            if (t.Content.StartsWith("/"))
+            if (eventArgs.Content.StartsWith("/"))
             {
-                Console.WriteLine(t.Content);
+                Console.WriteLine(eventArgs.Content);
                 var result = await eventArgs.botRequest.SendGroupMessage(new ChannelMessage(eventArgs.Data, eventArgs.Data.Content));
                 Console.WriteLine(result.ToString());
             }

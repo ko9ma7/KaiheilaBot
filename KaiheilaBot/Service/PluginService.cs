@@ -93,6 +93,7 @@ namespace KaiheilaBot.Service
                 try
                 {
                     StringBuilder sb = new StringBuilder();
+                    sb.AppendLine("@echo off");
                     foreach (var temp in tempDlls)
                     {
                         sb.AppendLine("del /f " + temp);
