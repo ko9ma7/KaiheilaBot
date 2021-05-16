@@ -1,10 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KaiheilaBot.Core", "src\KaiheilaBot.Core\KaiheilaBot.Core.csproj", "{ED59AD0C-339B-45A4-AAAA-464890CA1979}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31229.75
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KaiheilaBot.Core", "src\KaiheilaBot.Core\KaiheilaBot.Core.csproj", "{ED59AD0C-339B-45A4-AAAA-464890CA1979}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KaiheilaBot", "src\KaiheilaBot\KaiheilaBot.csproj", "{64C850DE-15B0-423A-ACC1-13DE1B455E29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KaiheilaBot", "src\KaiheilaBot\KaiheilaBot.csproj", "{64C850DE-15B0-423A-ACC1-13DE1B455E29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KaiheilaBot.Plugin", "src\KaiheilaBot.Plugin\KaiheilaBot.Plugin.csproj", "{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KaiheilaBot.Plugin", "src\KaiheilaBot.Plugin\KaiheilaBot.Plugin.csproj", "{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2E4A7A2F-49E1-437C-BFBF-49FD1086AB7B}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +34,11 @@ Global
 		{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3F149409-2A41-4193-8660-2507E7C3F582}
 	EndGlobalSection
 EndGlobal
