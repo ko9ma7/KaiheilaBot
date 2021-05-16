@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace KaiheilaBot
 {
     /// <summary>
-    /// 最基础的Bot，创建后需要加载插件
+    /// 最基础的Bot，创建后自动加载插件
     /// </summary>
     public class BotWrapper
     {
@@ -41,11 +41,15 @@ namespace KaiheilaBot
             Container.Register<IConsole, ConsoleService>();
         }
         /// <summary>
-        /// 启动
+        /// 启动机器人所有功能
         /// </summary>
         /// <returns></returns>
         public async virtual Task Start()
         {
+            if (!Directory.Exists("Plugin"))
+            {
+                Directory.CreateDirectory("Plugin");
+            }
             FileSystemWatcher watcher = new FileSystemWatcher();
             watcher.Path = "Plugin";
             watcher.IncludeSubdirectories = true;
@@ -66,16 +70,30 @@ namespace KaiheilaBot
             var bot = Container.GetInstance<IBotService>();
             await bot.StartApp();
         }
-
+        /// <summary>
+        /// 关闭之前，清理掉为了Hot Reload而创建的缓存
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
             RemoveCache();
         }
-
+        /// <summary>
+        /// 综合分类给各插件的Handle功能
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="plugins"></param>
+        /// <returns></returns>
         private async Task Handle(ReceiveMessage message, IList<IPlugin> plugins)
         {
+            var completed = false;
             foreach(var plugin in plugins)
             {
+                if (completed)
+                {
+                    return;
+                }
                 switch(plugin.HandleType)
                 {
                     case EventType.ChannelTextMessage:
@@ -84,82 +102,86 @@ namespace KaiheilaBot
                             var author = (message.Data.Extra as ExtraText);
                             if (!author.Author.IsBot && !author.Author.IsSystem)
                             {
-                                await plugin.Handle(new TextMessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                                completed = await plugin.Handle(new TextMessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                             }
                         }
                         break;
                     case EventType.BotInvited:
                         if(message.Data.Extra is Invited)
                         {
-                            await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                            completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
                         break;
                     case EventType.ChannelCreated:
                         if (message.Data.Extra is NewChannel)
                         {
-                            await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                            completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
                         break;
                     case EventType.ChannelEdited:
                         if (message.Data.Extra is EditChannel)
                         {
-                            await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                            completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
                         break;
                     case EventType.ChannelRemoved:
                         if (message.Data.Extra is DeleteChannel)
                         {
-                            await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                            completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
                         break;
                     case EventType.MemberChangeNick:
                         if (message.Data.Extra is MemberChangeNick)
                         {
-                            await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                            completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
                         break;
                     case EventType.MemberJoinChannel:
                         if (message.Data.Extra is MemberJoin)
                         {
-                            await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                            completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
                         break;
                     case EventType.MemberLeaveChannel:
                         if (message.Data.Extra is MemberLeave)
                         {
-                            await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                            completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
                         break;
                     case EventType.MessageChanged:
                         if (message.Data.Extra is UpdateMessage)
                         {
-                            await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                            completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
                         break;
                     case EventType.MessagePinned:
                         if (message.Data.Extra is PinnedMessage)
                         {
-                            await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                            completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
                         break;
                     case EventType.MessageReacted:
                         if (message.Data.Extra is Reaction)
                         {
-                            await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                            completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
                         break;
                     case EventType.MessageRemoved:
                         if (message.Data.Extra is DeleteMessage)
                         {
-                            await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
+                            completed = await plugin.Handle(new MessageEventArgs(message.Data, Container.GetInstance<IConsole>()));
                         }
                         break;
                 }
             }
 
         }
-
-        public void OnChanged(object source, FileSystemEventArgs e)
+        /// <summary>
+        /// 检测到Plugin文件夹的改动后自动重载所有插件用
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
+        private void OnChanged(object source, FileSystemEventArgs e)
         {
             context.Unload();
             context = null;
@@ -169,8 +191,10 @@ namespace KaiheilaBot
             context = new AssemblyLoadContext("plugin", true);
             Register();
         }
-
-        private void Register()
+        /// <summary>
+        /// 注册插件
+        /// </summary>
+        private async void Register()
         {
             var type = typeof(IPlugin);
             var hub = Container.GetInstance<Shared>();
@@ -192,6 +216,7 @@ namespace KaiheilaBot
                         foreach (var i in assembly.GetTypes().Where(p => type.IsAssignableFrom(p) && !p.IsInterface && !p.IsAbstract))
                         {
                             var plugin = (IPlugin)Activator.CreateInstance(i);
+                            await plugin.PluginLoad(Container);
                             plugins.Add(plugin);
                             log.Debug(plugin.GetType().Name + " 插件已注册！");
                         }
@@ -225,10 +250,16 @@ namespace KaiheilaBot
                 await Handle(message, plugins);
             });
         }
-
-        private void RemoveCache()
+        /// <summary>
+        /// 删除掉缓存文件
+        /// </summary>
+        private async void RemoveCache()
         {
             log.Information("正在卸载插件...");
+            foreach (var plugin in plugins)
+            {
+                await plugin.PluginUnload(Container);
+            }
             plugins.Clear();
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {

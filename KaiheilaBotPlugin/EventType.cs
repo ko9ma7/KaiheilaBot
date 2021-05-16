@@ -1,6 +1,9 @@
 ﻿
 namespace KaiheilaBot
 {
+    /// <summary>
+    /// 消息处理类别
+    /// </summary>
     public enum EventType
     {
         ChannelTextMessage,

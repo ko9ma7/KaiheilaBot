@@ -10,15 +10,26 @@ namespace TestPlugin
     {
         public EventType HandleType => EventType.ChannelTextMessage;
 
-        public async Task Handle(MessageEventArgs eventArgs)
+        public Task PluginLoad(IServiceProvider container)
         {
-            var t = eventArgs as TextMessageEventArgs;
+            return null;
+        }
+
+        public Task PluginUnload(IServiceProvider container)
+        {
+            return null;
+        }
+
+        public async Task<bool> Handle(MessageEventArgs eventArgs)
+        {
+            var t = (TextMessageEventArgs)eventArgs;
             if (t.Content.StartsWith("/"))
             {
                 Console.WriteLine(t.Content);
                 var result = await eventArgs.botRequest.SendGroupMessage(new ChannelMessage(eventArgs.Data, eventArgs.Data.Content));
                 Console.WriteLine(result.ToString());
             }
+            return true;
         }
     }
 }
