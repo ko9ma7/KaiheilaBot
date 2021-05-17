@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
+//Todo: 把所有返回的数据打包成class而不是目前的JObject
 namespace KaiheilaBot.Interface
 {
     /// <summary>
@@ -44,5 +45,11 @@ namespace KaiheilaBot.Interface
         /// <param name="message"></param>
         /// <returns></returns>
         public Task<JObject> ChangeNick(ChangeNickMessage message);
+        /// <summary>
+        /// 获取服务器内的用户
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public Task<JObject> GetServerMembers(GetServerMemberMessage message);
     }
 }

@@ -27,6 +27,11 @@ namespace KaiheilaBot.Service
             throw new System.NotImplementedException();
         }
 
+        public Task<JObject> GetServerMembers(GetServerMemberMessage message)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public Task<JObject> RemoveChannel(RemoveChannelMessage message)
         {
             throw new System.NotImplementedException();

@@ -11,12 +11,12 @@ namespace KaiheilaBot.Interface.Services
         /// </summary>
         /// <param name="container"></param>
         /// <returns></returns>
-        public Task<IList<T>> Load(Container container);
+        public Task<IList<T>> Load();
         /// <summary>
         /// 卸载插件
         /// </summary>
         /// <param name="container"></param>
         /// <returns></returns>
-        public Task Unload(Container container);
+        public Task Unload();
     }
 }

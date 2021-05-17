@@ -26,5 +26,27 @@ namespace KaiheilaBot.Models
         /// 操作处理的主要框架
         /// </summary>
         public IConsole botRequest { get; set; }
+        /// <summary>
+        /// 发送者
+        /// </summary>
+        public string Sender
+        {
+            get
+            {
+                if(Data.AuthorId == "!")
+                {
+                    return null;
+                }
+                return Data.AuthorId;
+            }
+        }
+
+        public string Taget
+        {
+            get
+            {
+                return Data.TargetId;
+            }
+        }
     }
 }

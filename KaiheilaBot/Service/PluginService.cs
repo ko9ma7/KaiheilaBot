@@ -19,11 +19,13 @@ namespace KaiheilaBot.Service
         private readonly IList<string> tempDlls = new List<string>();
         private AssemblyLoadContext context = new AssemblyLoadContext("plugin", true);
         private readonly ILogService log;
+        private Container pluginContainer;
         public PluginService(ILogService service)
         {
             log = service;
+            pluginContainer = new Container();
         }
-        public async Task<IList<T>> Load(Container container)
+        public async Task<IList<T>> Load()
         {
             var type = typeof(T);
             foreach (var file in Directory.GetFiles("Plugin", "*.dll", SearchOption.AllDirectories))
@@ -43,7 +45,7 @@ namespace KaiheilaBot.Service
                         foreach (var i in assembly.GetTypes().Where(p => type.IsAssignableFrom(p) && !p.IsInterface && !p.IsAbstract))
                         {
                             var plugin = (T)Activator.CreateInstance(i);
-                            await plugin.PluginLoad(container);
+                            await plugin.PluginLoad(pluginContainer);
                             plugins.Add(plugin);
                             log.Debug(plugin.GetType().Name + " 插件已注册！");
                         }
@@ -62,7 +64,7 @@ namespace KaiheilaBot.Service
                         foreach (var i in assembly.GetTypes().Where(p => type.IsAssignableFrom(p) && !p.IsInterface && !p.IsAbstract))
                         {
                             var plugin = (T)Activator.CreateInstance(i);
-                            await plugin.PluginLoad(container);
+                            await plugin.PluginLoad(pluginContainer);
                             plugins.Add(plugin);
                             log.Debug(plugin.GetType().Name + " 插件已注册！");
                         }
@@ -76,7 +78,7 @@ namespace KaiheilaBot.Service
             return plugins;
         }
 
-        public async Task Unload(Container container)
+        public async Task Unload()
         {
             log.Information("正在卸载插件...");
             context.Unload();
@@ -85,9 +87,10 @@ namespace KaiheilaBot.Service
             GC.WaitForPendingFinalizers();
             foreach (var plugin in plugins)
             {
-                await plugin.PluginUnload(container);
+                await plugin.PluginUnload(pluginContainer);
             }
             plugins.Clear();
+            await pluginContainer.DisposeAsync();
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 try

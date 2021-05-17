@@ -87,7 +87,7 @@ namespace KaiheilaBot
         /// <param name="e"></param>
         private void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
-            pluginLoader.Unload(Container);
+            pluginLoader.Unload();
         }
         /// <summary>
         /// 注册插件
@@ -97,7 +97,7 @@ namespace KaiheilaBot
             var hub = Container.GetInstance<Shared>();
             hub.messageHub.ClearSubscriptions();
             pluginLoader = Container.GetInstance<IPluginLoader<IPlugin>>();
-            var plugins = await pluginLoader.Load(Container);
+            var plugins = await pluginLoader.Load();
             hub.messageHub.Subscribe<ReceiveMessage>(async message =>
             {
                 await Handle(message, plugins);
@@ -110,7 +110,7 @@ namespace KaiheilaBot
         /// <param name="e"></param>
         private void OnChanged(object source, FileSystemEventArgs e)
         {
-            pluginLoader.Unload(Container);
+            pluginLoader.Unload();
             Register();
         }
         /// <summary>
