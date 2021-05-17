@@ -16,16 +16,16 @@ namespace KaiheilaBot.Models
         public MessageEventArgs(ReceiveMessageData data, IConsole request)
         {
             Data = data;
-            botRequest = request;
+            Console = request;
         }
         /// <summary>
         /// 收到的数据
         /// </summary>
-        public ReceiveMessageData Data { get; set; }
+        public ReceiveMessageData Data { get; private set; }
         /// <summary>
         /// 操作处理的主要框架
         /// </summary>
-        public IConsole botRequest { get; set; }
+        public IConsole Console { get; private set; }
         /// <summary>
         /// 发送者
         /// </summary>

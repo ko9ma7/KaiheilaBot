@@ -4,7 +4,7 @@ using System.Text;
 
 namespace KaiheilaBot
 {
-    public class GetServerMemberMessage
+    public class GetServerMemberMessage:AbstractMessageType
     {
         public GetServerMemberMessage(string guid)
         {

@@ -12,8 +12,8 @@ namespace TestPlugin
             if (eventArgs.Content.StartsWith("/"))
             {
                 Console.WriteLine(eventArgs.Content);
-                var result = await eventArgs.botRequest.SendGroupMessage(new ChannelMessage(eventArgs.Data, eventArgs.Data.Content));
-                Console.WriteLine(result.ToString());
+                var result = await eventArgs.Console.SendGroupMessage(new ChannelMessage(eventArgs.Data, eventArgs.Data.Content));
+                Console.WriteLine("message sended as "+result.data.msg_id);
             }
             return true;
         }

@@ -1,6 +1,6 @@
 ﻿namespace KaiheilaBot
 {
-    public class RemoveChannelMessage
+    public class RemoveChannelMessage:AbstractMessageType
     {
         public RemoveChannelMessage(string channelId)
         {

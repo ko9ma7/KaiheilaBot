@@ -12,47 +12,65 @@ namespace KaiheilaBot.Service
             this.request = request;
         }
 
-        public Task<JObject> ChangeNick(ChangeNickMessage message)
+        public Task<HttpResponseMessage> ChangeNick(ChangeNickMessage message)
         {
-            throw new System.NotImplementedException();
+            request.SetMethod(RestSharp.Method.POST);
+            request.SetUrl("guild/nickname");
+            request.AddJToken(message);
+            return GetResult<HttpResponseMessage>();
         }
 
-        public Task<JObject> CreateChannel(NewChannelMessage message)
+        public Task<HttpResponseMessage<GetChannelInfoReply>> CreateChannel(NewChannelMessage message)
         {
-            throw new System.NotImplementedException();
+            request.SetMethod(RestSharp.Method.POST);
+            request.SetUrl("channel/create");
+            request.AddJToken(message);
+            return GetResult<HttpResponseMessage<GetChannelInfoReply>>();
         }
 
-        public Task<JObject> GetChannels()
+        public Task<HttpResponseMessage<GetChannelInfoReply>> GetChannels(string guildId)
         {
-            throw new System.NotImplementedException();
+            request.SetMethod(RestSharp.Method.GET);
+            request.SetUrl("channel/list");
+            request.AddParameter("guild_id", guildId);
+            return GetResult<HttpResponseMessage<GetChannelInfoReply>>();
         }
 
-        public Task<JObject> GetServerMembers(GetServerMemberMessage message)
+        public Task<HttpResponseMessage<GetServerMemberReply>> GetServerMembers(GetServerMemberMessage message)
         {
-            throw new System.NotImplementedException();
+            request.SetMethod(RestSharp.Method.GET);
+            request.SetUrl("guild/user-list");
+            request.AddJToken(message);
+            return GetResult<HttpResponseMessage<GetServerMemberReply>>();
         }
 
-        public Task<JObject> RemoveChannel(RemoveChannelMessage message)
+        public Task<HttpResponseMessage> RemoveChannel(RemoveChannelMessage message)
         {
-            throw new System.NotImplementedException();
+            request.SetMethod(RestSharp.Method.POST);
+            request.SetUrl("channel/delete");
+            request.AddJToken(message);
+            return GetResult<HttpResponseMessage>();
         }
 
-        public Task<JObject> RemoveMessage(RemoveMessageMessage message)
+        public Task<HttpResponseMessage> RemoveMessage(RemoveMessageMessage message)
         {
-            throw new System.NotImplementedException();
+            request.SetMethod(RestSharp.Method.POST);
+            request.SetUrl("message/delete");
+            request.AddJToken(message);
+            return GetResult<HttpResponseMessage>();
         }
 
-        public Task<JObject> SendGroupMessage(ChannelMessage message)
+        public Task<HttpResponseMessage<SendChannelMessageReply>> SendGroupMessage(ChannelMessage message)
         {
             request.SetMethod(RestSharp.Method.POST);
             request.SetUrl("message/create");
             request.AddJToken(message);
-            return GetResult();
+            return GetResult<HttpResponseMessage<SendChannelMessageReply>>();
         }
 
-        private async Task<JObject> GetResult()
+        private async Task<T> GetResult<T>()
         {
-            return JObject.Parse((await request.GetResponse()).Content);
+            return JObject.Parse((await request.GetResponse()).Content).ToObject<T>();
         }
     }
 }
