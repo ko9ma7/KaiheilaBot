@@ -1,13 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.31220.234
+VisualStudioVersion = 16.0.31229.75
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KaiheilaBot", "KaiheilaBot\KaiheilaBot.csproj", "{DBD53162-2E3B-4CA1-8E2F-43D65EEC1D2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KaiheilaBot.Core", "src\KaiheilaBot.Core\KaiheilaBot.Core.csproj", "{ED59AD0C-339B-45A4-AAAA-464890CA1979}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KaiheilaBotPlugin", "KaiheilaBotPlugin\KaiheilaBotPlugin.csproj", "{0B824E27-9635-4032-BD66-80A0EBFBB79F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KaiheilaBot", "src\KaiheilaBot\KaiheilaBot.csproj", "{64C850DE-15B0-423A-ACC1-13DE1B455E29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{165C839F-0919-42D8-912F-678C78AB8405}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KaiheilaBot.Plugin", "src\KaiheilaBot.Plugin\KaiheilaBot.Plugin.csproj", "{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2E4A7A2F-49E1-437C-BFBF-49FD1086AB7B}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,23 +22,23 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DBD53162-2E3B-4CA1-8E2F-43D65EEC1D2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DBD53162-2E3B-4CA1-8E2F-43D65EEC1D2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DBD53162-2E3B-4CA1-8E2F-43D65EEC1D2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DBD53162-2E3B-4CA1-8E2F-43D65EEC1D2D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B824E27-9635-4032-BD66-80A0EBFBB79F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B824E27-9635-4032-BD66-80A0EBFBB79F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B824E27-9635-4032-BD66-80A0EBFBB79F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B824E27-9635-4032-BD66-80A0EBFBB79F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{165C839F-0919-42D8-912F-678C78AB8405}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{165C839F-0919-42D8-912F-678C78AB8405}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{165C839F-0919-42D8-912F-678C78AB8405}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{165C839F-0919-42D8-912F-678C78AB8405}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED59AD0C-339B-45A4-AAAA-464890CA1979}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED59AD0C-339B-45A4-AAAA-464890CA1979}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED59AD0C-339B-45A4-AAAA-464890CA1979}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED59AD0C-339B-45A4-AAAA-464890CA1979}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64C850DE-15B0-423A-ACC1-13DE1B455E29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64C850DE-15B0-423A-ACC1-13DE1B455E29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64C850DE-15B0-423A-ACC1-13DE1B455E29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64C850DE-15B0-423A-ACC1-13DE1B455E29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {7CE39940-2E83-4644-8C25-2424058963C1}
+		SolutionGuid = {3F149409-2A41-4193-8660-2507E7C3F582}
 	EndGlobalSection
 EndGlobal
