@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KaiheilaBot.Core", "src\Kai
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KaiheilaBot", "src\KaiheilaBot\KaiheilaBot.csproj", "{64C850DE-15B0-423A-ACC1-13DE1B455E29}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KaiheilaBot.Plugin", "src\KaiheilaBot.Plugin\KaiheilaBot.Plugin.csproj", "{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2E4A7A2F-49E1-437C-BFBF-49FD1086AB7B}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
@@ -30,10 +28,6 @@ Global
 		{64C850DE-15B0-423A-ACC1-13DE1B455E29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64C850DE-15B0-423A-ACC1-13DE1B455E29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64C850DE-15B0-423A-ACC1-13DE1B455E29}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7A957C6E-B1DE-4E9F-9253-02B7A07A8A1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
