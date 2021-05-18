@@ -7,6 +7,7 @@ using RestSharp;
 
 namespace KaiheilaBot.Core.Services
 {
+    // TODO: 待完善
     public class HttpApiRequestService : IHttpApiRequestService
     {
         private readonly ILogger<HttpApiRequestService> _logger;
