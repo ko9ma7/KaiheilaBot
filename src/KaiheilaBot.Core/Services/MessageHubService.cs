@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace KaiheilaBot.Core.Services
 {
+    // TODO: 日志记录
     public class MessageHubService : IMessageHubService
     {
         private readonly ILogger<MessageHubService> _logger;
@@ -51,7 +52,7 @@ namespace KaiheilaBot.Core.Services
                     (x => x.Value == pluginUniqueId);
                 return true;
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException _)
             {
                 return false;
             }
