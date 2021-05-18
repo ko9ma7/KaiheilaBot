@@ -1,0 +1,7 @@
+# KaiheilaBot Instance 配置文件
+
+# 机器人 Websocket Token，若为 null，这个 Instance 将不会运行
+Token: "null"
+
+# 开黑啦 Http Api 基地址
+HttpApiBaseUrl: "https://www.kaiheila.cn/api/v3"
