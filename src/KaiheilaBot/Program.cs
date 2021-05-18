@@ -1,12 +1,12 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 
 namespace KaiheilaBot
 {
-    class Program
+    public static class Program
     {
-        static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            await Core.KaiheilaBot.Startup();
         }
     }
 }
