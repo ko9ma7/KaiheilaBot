@@ -28,6 +28,7 @@ namespace KaiheilaBot.Core
                 return 1;
             }
 
+            // TODO: 通过配置文件设置Logger
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.WithAssemblyName()
@@ -39,7 +40,7 @@ namespace KaiheilaBot.Core
             try
             {
                 Log.Logger.Information("Starting host...");
-                await Run(configFilePath);
+                await Run(instanceDirectory);
             }
             catch (Exception ex)
             {
@@ -57,12 +58,16 @@ namespace KaiheilaBot.Core
         /// <summary>
         /// 构建与运行 Generic Host
         /// </summary>
-        private static async Task Run(string configFilePath) =>
+        private static async Task Run(string instanceDirectory) =>
             await new HostBuilder()
                 .ConfigureAppConfiguration((_, builder) =>
                 {
                     builder
-                        .AddYamlFile(configFilePath, optional: false);
+                        .AddYamlFile(Path.Join(instanceDirectory, "config.yml"), optional: false)
+                        .AddInMemoryCollection(new Dictionary<string, string>
+                        {
+                            {"PluginFolder", instanceDirectory}
+                        });
                 })
                 .ConfigureServices((_, services) =>
                 {
@@ -70,6 +75,7 @@ namespace KaiheilaBot.Core
                         .AddHostedService<BotHostedService>()
                         .AddSingleton<IBotWebsocketService, BotWebsocketService>()
                         .AddSingleton<IMessageHubService, MessageHubService>()
+                        .AddSingleton<IPluginService, PluginService>()
                         .AddTransient<IHttpApiRequestService, HttpApiRequestService>();
                 })
                 .UseSerilog()

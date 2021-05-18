@@ -11,37 +11,35 @@ namespace KaiheilaBot.Core
     public class BotHostedService : IHostedService
     {
         private readonly ILogger<BotHostedService> _logger;
-        private readonly IMessageHubService _messageHubService;
         private readonly IBotWebsocketService _botWebsocketService;
+        private readonly IPluginService _pluginService;
         private readonly IConfiguration _configuration;
 
-        // 测试使用，非成品
         public BotHostedService(ILogger<BotHostedService> logger, 
-            IMessageHubService messageHubService, 
             IBotWebsocketService botWebsocketService,
+            IPluginService pluginService,
             IConfiguration configuration)
         {
             _logger = logger;
-            _messageHubService = messageHubService;
             _botWebsocketService = botWebsocketService;
+            _pluginService = pluginService;
             _configuration = configuration;
         }
         
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation(_configuration["Token"]);
             _logger.LogInformation("Bot 启动中...");
-            _messageHubService.Subscribe<JsonElement>(async data =>
-            {
-                _logger.LogDebug(data.ToString());
-                await Task.Delay(500, cancellationToken);
-            }, "123");
+            await _pluginService.LoadPlugins();
+            
+            _pluginService.SubscribeToMessageHub();
 
             await _botWebsocketService.Connect();
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
+            // TODO: 卸载动作
+            _pluginService.UnloadPlugin();
             return Task.CompletedTask;
         }
     }
