@@ -5,12 +5,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\KaiheilaBot.Plugin\KaiheilaBot.Plugin.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
+      <PackageReference Include="Easy.MessageHub" Version="5.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+      <PackageReference Include="NetEscapades.Configuration.Yaml" Version="2.1.0" />
       <PackageReference Include="RestSharp" Version="106.11.7" />
       <PackageReference Include="Serilog" Version="2.10.0" />
       <PackageReference Include="Serilog.Enrichers.AssemblyName" Version="1.0.9" />
@@ -18,10 +16,12 @@
       <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
       <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
       <PackageReference Include="Websocket.Client" Version="4.3.30" />
+      <PackageReference Include="YamlDotNet" Version="11.1.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models" />
+      <Folder Include="Models\Events" />
+      <Folder Include="Models\Responses" />
     </ItemGroup>
 
 </Project>

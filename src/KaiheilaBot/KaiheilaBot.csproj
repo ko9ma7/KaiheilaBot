@@ -10,4 +10,10 @@
       <ProjectReference Include="..\KaiheilaBot.Core\KaiheilaBot.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="defaultConfig.yml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using KaiheilaBot.Core.Common;
 using KaiheilaBot.Core.Services;
 using KaiheilaBot.Core.Services.IServices;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -13,20 +17,29 @@ namespace KaiheilaBot.Core
         /// <summary>
         /// 启动 Host
         /// </summary>
-        public static async Task<int> Startup()
+        /// <param name="instanceDirectory">Instance 文件夹</param>
+        public static async Task<int> Startup(string instanceDirectory)
         {
+            var configFilePath = Path.Join(instanceDirectory, "config.yml");
+            var config = await YamlParser.Parse<Dictionary<string, string>>(configFilePath);
+            Console.WriteLine(config["Token"]);
+            if (config["Token"] == "null")
+            {
+                return 1;
+            }
+
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.WithAssemblyName()
                 .Enrich.WithAssemblyVersion()
                 .WriteTo.Console()
-                .WriteTo.File(path: @"logs/log-.log", rollingInterval: RollingInterval.Day, shared: true)
+                .WriteTo.File(path: @"Logs/log-.log", rollingInterval: RollingInterval.Day, shared: true)
                 .CreateLogger();
 
             try
             {
                 Log.Logger.Information("Starting host...");
-                await Run();
+                await Run(configFilePath);
             }
             catch (Exception ex)
             {
@@ -44,12 +57,20 @@ namespace KaiheilaBot.Core
         /// <summary>
         /// 构建与运行 Generic Host
         /// </summary>
-        private static async Task Run() =>
+        private static async Task Run(string configFilePath) =>
             await new HostBuilder()
-                .ConfigureServices((hostContext, services) =>
+                .ConfigureAppConfiguration((_, builder) =>
+                {
+                    builder
+                        .AddYamlFile(configFilePath, optional: false);
+                })
+                .ConfigureServices((_, services) =>
                 {
                     services
-                        .AddHostedService<BotHostedService>();
+                        .AddHostedService<BotHostedService>()
+                        .AddSingleton<IBotWebsocketService, BotWebsocketService>()
+                        .AddSingleton<IMessageHubService, MessageHubService>()
+                        .AddTransient<IHttpApiRequestService, HttpApiRequestService>();
                 })
                 .UseSerilog()
                 .RunConsoleAsync();
