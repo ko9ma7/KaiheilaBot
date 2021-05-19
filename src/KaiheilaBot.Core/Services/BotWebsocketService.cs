@@ -5,9 +5,11 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using KaiheilaBot.Core.Common;
+using KaiheilaBot.Core.Models.Requests.Gateway;
+using KaiheilaBot.Core.Models.Responses.Gateway;
 using KaiheilaBot.Core.Services.IServices;
 using Microsoft.Extensions.Logging;
-using RestSharp;
 using Websocket.Client;
 using Timer = System.Timers.Timer;
 
@@ -105,11 +107,11 @@ namespace KaiheilaBot.Core.Services
             {
                 _logger.LogInformation($"第 {i.ToString()} 次尝试获取 Websocket Url");
                 var response = await _httpApiRequestService
-                    .SetResourcePath("gateway/index")
-                    .SetMethod(Method.GET)
-                    .AddParameter("compress", 0)
-                    .GetResponse();
-                
+                    .GetResponse<GatewayIndexRequest>(new GatewayIndexRequest()
+                    {
+                        Compress = 0
+                    });
+
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
                     if (i != 3)
@@ -125,9 +127,13 @@ namespace KaiheilaBot.Core.Services
                 }
                 
                 _logger.LogInformation("从 Gateway 获取 Websocket Url 成功");
-                var data = response.Content;
-                var json = JsonDocument.Parse(data).RootElement;
-                var url = json.GetProperty("data").GetProperty("url").GetString();
+                var data = HttpResponseDeserializer
+                    .Deserialize<GatewayIndexResponse>(response.Content);
+                if (data is null)
+                {
+                    continue;
+                }
+                var url = data.Data.Url;
                 
                 _status = BotStatus.Gateway;
                 _logger.LogInformation("机器人状态：已获取 Websocket Url");
