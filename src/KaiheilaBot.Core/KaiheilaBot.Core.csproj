@@ -20,9 +20,4 @@
       <PackageReference Include="YamlDotNet" Version="11.1.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Models\Events" />
-      <Folder Include="Models\Responses" />
-    </ItemGroup>
-
 </Project>
