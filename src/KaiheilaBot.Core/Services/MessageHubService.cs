@@ -52,7 +52,7 @@ namespace KaiheilaBot.Core.Services
                     (x => x.Value == pluginUniqueId);
                 return true;
             }
-            catch (InvalidOperationException _)
+            catch (InvalidOperationException)
             {
                 return false;
             }
