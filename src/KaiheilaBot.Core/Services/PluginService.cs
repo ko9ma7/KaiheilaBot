@@ -38,7 +38,7 @@ namespace KaiheilaBot.Core.Services
         
         public async Task LoadPlugins()
         {
-            var pluginDirectory = Path.Join(_configuration["PluginFolder"], "Plugin");
+            var pluginDirectory = Path.Join(_configuration["PluginFolder"], "Plugins");
             var loaders = new Dictionary<string, PluginLoader>();
             foreach (var dir in Directory.GetDirectories(pluginDirectory))
             {
