@@ -3,7 +3,11 @@ using System.Text.Json.Serialization;
 
 namespace KaiheilaBot.Core.Models.Events
 {
-    public record BaseEvent<T> where T : BaseEventData
+    /// <summary>
+    /// "s": 0 的 Event Models
+    /// </summary>
+    /// <typeparam name="T">Body Record</typeparam>
+    public record BaseEvent<T> where T : BaseEventExtraBody
     {
         /// <summary>
         /// 值永远是 0
@@ -15,7 +19,7 @@ namespace KaiheilaBot.Core.Models.Events
         public long SerialNumber { get; set; }
         
         [JsonPropertyName("d")]
-        public T Data { get; set; }
+        public BaseEventData<T> Data { get; set; }
 
         public override string ToString()
         {
