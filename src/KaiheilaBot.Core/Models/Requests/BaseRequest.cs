@@ -7,7 +7,5 @@ namespace KaiheilaBot.Core.Models.Requests
         public Method RequestMethod { get; init; }
 
         public string ResourcePath { get; init; }
-
-        public bool UploadingFiles { get; set; } = false;
     }
 }
