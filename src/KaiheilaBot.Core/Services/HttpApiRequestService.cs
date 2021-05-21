@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using KaiheilaBot.Core.Attributes;
 using KaiheilaBot.Core.Common;
 using KaiheilaBot.Core.Models.Requests;
+using KaiheilaBot.Core.Models.Requests.Media;
 using KaiheilaBot.Core.Services.IServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -16,9 +18,10 @@ namespace KaiheilaBot.Core.Services
         private readonly IConfiguration _configuration;
 
         private readonly Dictionary<string, string> _params = new();
+        private readonly Dictionary<string, string> _body = new();
         
         private Method _method = Method.GET;
-
+        private string _filePath = string.Empty;
         private string _resourcePath = "";
         
         public HttpApiRequestService(
@@ -40,6 +43,20 @@ namespace KaiheilaBot.Core.Services
         {
             _params.Add(paramName, paramValue.ToString());
             _logger.LogDebug($"添加 RestRequest 参数：{paramName} - {paramValue.ToString()}");
+            return this;
+        }
+
+        /// <summary>
+        /// 添加 Post 请求时的 Body 参数
+        /// </summary>
+        /// <param name="bodyParamName">参数名</param>
+        /// <param name="bodyParamValue">参数内容</param>
+        /// <typeparam name="T">参数类型，需要能够使用 ToString() 返回请求值</typeparam>
+        /// <returns></returns>
+        public IHttpApiRequestService AddPostBody<T>(string bodyParamName, T bodyParamValue)
+        {
+            _body.Add(bodyParamName, bodyParamValue.ToString());
+            _logger.LogDebug($"添加 RestRequest Post Body 参数：{bodyParamName} - {bodyParamValue.ToString()}");
             return this;
         }
 
@@ -67,6 +84,18 @@ namespace KaiheilaBot.Core.Services
         }
 
         /// <summary>
+        /// 设置为调用上传文件接口，之后请直接调用 GetResponse()
+        /// </summary>
+        /// <returns></returns>
+        public IHttpApiRequestService SetFileUpload(string filePath)
+        {
+            _method = Method.POST;
+            _resourcePath = "asset/create";
+            _filePath = filePath;
+            return this;
+        }
+
+        /// <summary>
         /// 通过 RequestRecord 配置获取 Response
         /// </summary>
         /// <param name="requestRecord">RequestRecord 实例</param>
@@ -78,6 +107,17 @@ namespace KaiheilaBot.Core.Services
             {
                 return null;
             }
+
+            if (typeof(T) == typeof(CreateAssetRequest))
+            {
+                var filePath = (string) requestRecord.GetType().GetProperties()
+                    .First(x => x.Name == "FilePath").GetValue(requestRecord);
+                SetFileUpload(filePath);
+                
+                return await GetResponse();
+            }
+            
+            var paramDictionary = new Dictionary<string, string>();
             foreach (var propertyInfo in requestRecord.GetType().GetProperties())
             {
                 var val = propertyInfo.GetValue(requestRecord);
@@ -103,21 +143,32 @@ namespace KaiheilaBot.Core.Services
                             return null;
                         }
                         break;
-                    case "UploadingFiles":
-                        // TODO: 文件操作，暂不支持，完成 API 建模后再做
-                        break;
                     default:
                         if (val is not null)
                         {
                             var paramValue = val.ToString();
                             
-                            // public static T GetAttribute<T>(this MemberInfo prop) => From RestSharp.Extensions
                             var paramNameAttribute = propertyInfo.GetAttribute<ParameterNameAttribute>();
                             var paramName = paramNameAttribute.GetName();
                             
-                            AddParameter(paramName, paramValue);
+                            paramDictionary.Add(paramName, paramValue);
                         }
                         break;
+                }
+            }
+
+            if (_method == Method.GET)
+            {
+                foreach (var (key,value) in paramDictionary)
+                {
+                    AddParameter(key, value);
+                }
+            }
+            else
+            {
+                foreach (var (key, value) in paramDictionary)
+                {
+                    AddPostBody(key, value);
                 }
             }
             
@@ -133,10 +184,22 @@ namespace KaiheilaBot.Core.Services
             var client = new RestClient(_configuration["HttpApiBaseUrl"]);
             var request = new RestRequest(_resourcePath, _method);
             request.AddHeader("Authorization", $"Bot {_configuration["Token"]}");
-            foreach (var (paramName, paramValue) in _params)
+            if (_filePath != string.Empty)
             {
-                request.AddParameter(paramName, paramValue);
+                request.AddFile("file", _filePath,"form-data");
             }
+            else
+            {
+                foreach (var (paramName, paramValue) in _params)
+                {
+                    request.AddParameter(paramName, paramValue);
+                }
+                if (_method == Method.POST)
+                {
+                    request.AddJsonBody(_body);
+                }
+            }
+            
             return await client.ExecuteAsync(request);
         }
     }
