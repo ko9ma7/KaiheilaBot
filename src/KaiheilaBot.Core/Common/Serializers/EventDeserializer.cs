@@ -1,9 +1,9 @@
 using System.Text.Json;
 using KaiheilaBot.Core.Models.Events;
 
-namespace KaiheilaBot.Core.Common
+namespace KaiheilaBot.Core.Common.Serializers
 {
-    public static class EventDeserializer
+    public static class EventSerializer
     {
         /// <summary>
         /// 反序列化 Event 信令 0 信息字符串

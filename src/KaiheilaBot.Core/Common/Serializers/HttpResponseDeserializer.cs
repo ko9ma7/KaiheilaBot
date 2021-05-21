@@ -1,9 +1,9 @@
 using System.Text.Json;
 using KaiheilaBot.Core.Models.Responses;
 
-namespace KaiheilaBot.Core.Common
+namespace KaiheilaBot.Core.Common.Serializers
 {
-    public static class HttpResponseDeserializer
+    public static class HttpResponseSerializer
     {
         /// <summary>
         /// 反序列化 RestResponse.Content Json 字符串

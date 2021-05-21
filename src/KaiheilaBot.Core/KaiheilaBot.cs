@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using KaiheilaBot.Core.Common;
+using KaiheilaBot.Core.Common.Serializers;
 using KaiheilaBot.Core.Services;
 using KaiheilaBot.Core.Services.IServices;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +22,7 @@ namespace KaiheilaBot.Core
         public static async Task<int> Startup(string instanceDirectory)
         {
             var configFilePath = Path.Join(instanceDirectory, "config.yml");
-            var config = await YamlParser.Parse<Dictionary<string, string>>(configFilePath);
+            var config = await YamlSerializer.Deserialize<Dictionary<string, string>>(configFilePath);
             Console.WriteLine(config["Token"]);
             if (config["Token"] == "null")
             {

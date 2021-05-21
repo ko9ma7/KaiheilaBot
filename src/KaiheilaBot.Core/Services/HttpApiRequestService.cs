@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using KaiheilaBot.Core.Attributes;
-using KaiheilaBot.Core.Common;
+using KaiheilaBot.Core.Common.Extensions;
 using KaiheilaBot.Core.Models.Requests;
 using KaiheilaBot.Core.Models.Requests.Media;
 using KaiheilaBot.Core.Services.IServices;

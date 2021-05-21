@@ -2,11 +2,11 @@ using System.IO;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
 
-namespace KaiheilaBot.Core.Common
+namespace KaiheilaBot.Core.Common.Serializers
 {
-    public static class YamlParser
+    public static class YamlSerializer
     {
-        public static async Task<T> Parse<T>(string yamlFilePath) where T : new()
+        public static async Task<T> Deserialize<T>(string yamlFilePath) where T : new()
         {
             var deserializer = new DeserializerBuilder().Build();
 

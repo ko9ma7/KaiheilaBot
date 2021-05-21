@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using KaiheilaBot.Core.Common;
+using KaiheilaBot.Core.Common.Serializers;
 using KaiheilaBot.Core.Models.Requests.Gateway;
 using KaiheilaBot.Core.Models.Responses.Gateway;
 using KaiheilaBot.Core.Services.IServices;
@@ -107,7 +107,7 @@ namespace KaiheilaBot.Core.Services
             {
                 _logger.LogInformation($"第 {i.ToString()} 次尝试获取 Websocket Url");
                 var response = await _httpApiRequestService
-                    .GetResponse<GatewayIndexRequest>(new GatewayIndexRequest()
+                    .GetResponse(new GatewayIndexRequest()
                     {
                         Compress = 0
                     });
@@ -127,7 +127,7 @@ namespace KaiheilaBot.Core.Services
                 }
                 
                 _logger.LogInformation("从 Gateway 获取 Websocket Url 成功");
-                var data = HttpResponseDeserializer
+                var data = HttpResponseSerializer
                     .Deserialize<GatewayIndexResponse>(response.Content);
                 if (data is null)
                 {

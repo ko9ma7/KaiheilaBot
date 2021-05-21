@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace KaiheilaBot.Core.Common
+namespace KaiheilaBot.Core.Common.Extensions
 {
     public static class AttributeExtensions
     {
