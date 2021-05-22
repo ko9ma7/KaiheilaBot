@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace KaiheilaBot.Core.Models.Events.UserRelatedEvents
 {
-    public record MessageButtonClickEvent : IBaseEventExtraBody
+    public record MessageBtnClickEvent : IBaseEventExtraBody
     {
         [JsonPropertyName("value")]
         public string Value { get; set; }
