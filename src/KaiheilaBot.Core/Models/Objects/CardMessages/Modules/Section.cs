@@ -13,9 +13,9 @@ namespace KaiheilaBot.Core.Models.Objects.CardMessages.Modules
         public SectionModes Mode { get; set; }
 
         [JsonPropertyName("text")]
-        public IEnumerable<ISectionText> Text { get; set; }
+        public ISectionText Text { get; set; }
 
         [JsonPropertyName("accessory")]
-        public IEnumerable<ISectionAccessory> Accessory { get; set; }
+        public ISectionAccessory Accessory { get; set; }
     }
 }
