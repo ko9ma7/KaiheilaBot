@@ -14,7 +14,7 @@ namespace KaiheilaBot.Core.Common.Serializers
         /// 命名空间 KaiheilaBot.Core.Models.Events.xxxEvents 下
         /// </typeparam>
         /// <returns>反序列化得到的 Record 类型 T</returns>
-        public static BaseEvent<T> Deserialize<T>(string jsonString) where T : BaseEventExtraBody
+        public static BaseEvent<T> Deserialize<T>(string jsonString) where T : IBaseEventExtraBody
         {
             return JsonSerializer.Deserialize<BaseEvent<T>>(jsonString);
         }
