@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace KaiheilaBot.Core.Models.Events.GuildRoleEvents
 {
-    public class UpdatedRoleEvent
+    public class UpdatedRoleEvent : IBaseEventExtraBody
     {
         [JsonPropertyName("role_id")]
         public long RoleId { get; set; }
