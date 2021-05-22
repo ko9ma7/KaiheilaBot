@@ -13,5 +13,11 @@ namespace KaiheilaBot.Core.Models.Objects.CardMessages.Elements
 
         [JsonPropertyName("emoji")]
         public bool Emoji { get; set; }
+
+        public PlainText(string content, bool emoji = true)
+        {
+            Content = content;
+            Emoji = emoji;
+        }
     }
 }

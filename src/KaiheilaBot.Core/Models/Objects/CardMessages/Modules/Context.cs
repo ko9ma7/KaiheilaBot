@@ -9,7 +9,10 @@ namespace KaiheilaBot.Core.Models.Objects.CardMessages.Modules
         [JsonPropertyName("type")] 
         public CardMessageTypes Type { get; init; } = CardMessageTypes.Context;
 
+        /// <summary>
+        /// object 类型便于序列化，只接受 Image, Kmarkdown, PlainText => IContextElement
+        /// </summary>
         [JsonPropertyName("elements")]
-        public IEnumerable<IContextElement> Elements { get; set; }
+        public IEnumerable<object> Elements { get; set; }
     }
 }

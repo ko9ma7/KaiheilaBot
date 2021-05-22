@@ -12,7 +12,16 @@ namespace KaiheilaBot.Core.Models.Objects.CardMessages.Structures
         [JsonPropertyName("cols")]
         public int Columns { get; set; }
 
+        /// <summary>
+        /// object 类型便于序列化，只接受 Context, Kmarkdown, PlainText => IParagraphField
+        /// </summary>
         [JsonPropertyName("fields")]
-        public IEnumerable<IParagraphField> Fields { get; set; }
+        public IEnumerable<object> Fields { get; set; }
+
+        public Paragraph(int columns, IEnumerable<IParagraphField> fields)
+        {
+            Columns = columns;
+            Fields = fields;
+        }
     }
 }

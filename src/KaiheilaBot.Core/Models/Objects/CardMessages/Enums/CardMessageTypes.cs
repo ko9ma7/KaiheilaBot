@@ -19,7 +19,7 @@ namespace KaiheilaBot.Core.Models.Objects.CardMessages.Enums
         
         // Elements
         PlainText,
-        KMarkdown,
+        Kmarkdown,
         Image,
         Button,
         

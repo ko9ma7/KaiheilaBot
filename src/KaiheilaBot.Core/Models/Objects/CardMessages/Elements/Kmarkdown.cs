@@ -3,12 +3,17 @@ using KaiheilaBot.Core.Models.Objects.CardMessages.Enums;
 
 namespace KaiheilaBot.Core.Models.Objects.CardMessages.Elements
 {
-    public record KMarkdown : IParagraphField, IContextElement, ISectionText
+    public record Kmarkdown : IParagraphField, IContextElement, ISectionText
     {
         [JsonPropertyName("type")] 
-        public CardMessageTypes Type { get; init; } = CardMessageTypes.KMarkdown;
+        public CardMessageTypes Type { get; init; } = CardMessageTypes.Kmarkdown;
         
         [JsonPropertyName("content")]
         public string Content { get; set; }
+
+        public Kmarkdown(string content)
+        {
+            Content = content;
+        }
     }
 }

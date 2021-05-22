@@ -3,7 +3,7 @@ using KaiheilaBot.Core.Models.Objects.CardMessages.Enums;
 
 namespace KaiheilaBot.Core.Models.Objects.CardMessages.Elements
 {
-    public record Button
+    public record Button : ISectionAccessory
     {
         [JsonPropertyName("type")] 
         public CardMessageTypes Type { get; init; } = CardMessageTypes.Button;
@@ -19,5 +19,13 @@ namespace KaiheilaBot.Core.Models.Objects.CardMessages.Elements
 
         [JsonPropertyName("text")]
         public string Text { get; set; }
+
+        public Button(string text, string click, string value, Themes theme)
+        {
+            Theme = theme;
+            Value = value;
+            Click = click;
+            Text = text;
+        }
     }
 }

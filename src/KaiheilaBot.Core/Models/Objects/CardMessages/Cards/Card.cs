@@ -19,6 +19,6 @@ namespace KaiheilaBot.Core.Models.Objects.CardMessages.Cards
         public Sizes Size { get; init; }
 
         [JsonPropertyName("modules")]
-        public IEnumerable<IModuleBase> Modules { get; set; }
+        public IEnumerable<object> Modules { get; set; }
     }
 }

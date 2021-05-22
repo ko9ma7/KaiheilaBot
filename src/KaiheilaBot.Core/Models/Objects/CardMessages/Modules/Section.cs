@@ -12,10 +12,16 @@ namespace KaiheilaBot.Core.Models.Objects.CardMessages.Modules
         [JsonPropertyName("mode")]
         public SectionModes Mode { get; set; }
 
+        /// <summary>
+        /// object 类型便于序列化，只接受 Paragraph, Kmarkdown, PlainText => ISectionText
+        /// </summary>
         [JsonPropertyName("text")]
-        public ISectionText Text { get; set; }
+        public object Text { get; set; }
 
+        /// <summary>
+        /// object 类型便于序列化，只接受 Image, Button => ISectionAccessory
+        /// </summary>
         [JsonPropertyName("accessory")]
-        public ISectionAccessory Accessory { get; set; }
+        public object Accessory { get; set; }
     }
 }
