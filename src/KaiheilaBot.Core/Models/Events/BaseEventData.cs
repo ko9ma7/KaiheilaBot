@@ -6,7 +6,7 @@ namespace KaiheilaBot.Core.Models.Events
     /// Event -> "d"
     /// </summary>
     /// <typeparam name="T">Body Record</typeparam>
-    public record BaseEventData<T> where T : BaseEventExtraBody
+    public record BaseEventData<T> where T : IBaseEventExtraBody
     {
         [JsonPropertyName("channel_type")]
         public string ChannelType { get; set; }

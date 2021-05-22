@@ -7,7 +7,7 @@ namespace KaiheilaBot.Core.Models.Events
     /// "s": 0 的 Event Models
     /// </summary>
     /// <typeparam name="T">Body Record</typeparam>
-    public record BaseEvent<T> where T : BaseEventExtraBody
+    public record BaseEvent<T> where T : IBaseEventExtraBody
     {
         /// <summary>
         /// 值永远是 0

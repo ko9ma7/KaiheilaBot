@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace KaiheilaBot.Core.Models.Events.ChannelRelatedEvents
 {
-    public record UpdatedMessageEvent : BaseEventExtraBody
+    public record UpdatedMessageEvent : IBaseEventExtraBody
     {
         [JsonPropertyName("channel_id")]
         public string ChannelId { get; set; }

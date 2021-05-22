@@ -3,7 +3,7 @@ using KaiheilaBot.Core.Models.Events.Common;
 
 namespace KaiheilaBot.Core.Models.Events.ChannelRelatedEvents
 {
-    public record AddedReactionEvent : BaseEventExtraBody
+    public record AddedReactionEvent : IBaseEventExtraBody
     {
         [JsonPropertyName("channel_id")]
         public string ChannelId { get; set; }

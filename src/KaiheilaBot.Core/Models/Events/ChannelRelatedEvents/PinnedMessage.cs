@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace KaiheilaBot.Core.Models.Events.ChannelRelatedEvents
 {
-    public record PinnedMessage
+    public record PinnedMessage : IBaseEventExtraBody
     {
         [JsonPropertyName("channel_id")]
         public string ChannelId { get; set; }

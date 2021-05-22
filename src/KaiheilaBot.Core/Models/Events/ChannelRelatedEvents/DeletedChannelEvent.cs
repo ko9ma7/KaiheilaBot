@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace KaiheilaBot.Core.Models.Events.ChannelRelatedEvents
 {
-    public class DeletedChannelEvent
+    public record DeletedChannelEvent : IBaseEventExtraBody
     {
         [JsonPropertyName("id")]
         public string Id { get; set; }
