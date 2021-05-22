@@ -4,7 +4,7 @@ using KaiheilaBot.Core.Models.Objects.CardMessages.Enums;
 
 namespace KaiheilaBot.Core.Models.Objects.CardMessages.Modules
 {
-    public record Context : IParagraphField
+    public record Context : IModuleBase, IParagraphField
     {
         [JsonPropertyName("type")] 
         public CardMessageTypes Type { get; init; } = CardMessageTypes.Context;

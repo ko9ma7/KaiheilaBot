@@ -3,7 +3,7 @@ using KaiheilaBot.Core.Models.Objects.CardMessages.Enums;
 
 namespace KaiheilaBot.Core.Models.Objects.CardMessages.Modules
 {
-    public record Countdown
+    public record Countdown : IModuleBase
     {
         [JsonPropertyName("type")]
         public CardMessageTypes Type { get; init; } = CardMessageTypes.Countdown;

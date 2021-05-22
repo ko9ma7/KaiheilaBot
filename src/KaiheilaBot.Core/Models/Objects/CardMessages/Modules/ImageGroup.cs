@@ -5,7 +5,7 @@ using KaiheilaBot.Core.Models.Objects.CardMessages.Enums;
 
 namespace KaiheilaBot.Core.Models.Objects.CardMessages.Modules
 {
-    public record ImageGroup
+    public record ImageGroup : IModuleBase
     {
         [JsonPropertyName("type")]
         public CardMessageTypes Type { get; init; } = CardMessageTypes.ImageGroup;
