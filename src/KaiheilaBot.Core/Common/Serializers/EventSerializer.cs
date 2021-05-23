@@ -22,7 +22,7 @@ namespace KaiheilaBot.Core.Common.Serializers
             {
                 return JsonSerializer.Deserialize<BaseEvent<T>>(jsonString);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }
@@ -43,7 +43,7 @@ namespace KaiheilaBot.Core.Common.Serializers
             {
                 return JsonSerializer.Deserialize<BaseMessageEvent<T>>(jsonString);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }
