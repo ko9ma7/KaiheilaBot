@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using KaiheilaBot.Core.Services.IServices;
@@ -17,14 +18,14 @@ namespace KaiheilaBot.Core.Extension
         /// <param name="logger">ILogger 实例</param>
         /// <param name="httpApiRequestService">IHttpApiRequestService 实例</param>
         /// <returns></returns>
-        public Task Initialize(ILogger<IPlugin> logger, 
+        public Task<List<string>> Initialize(ILogger<IPlugin> logger, 
             IHttpApiRequestService httpApiRequestService);
 
         /// <summary>
         /// 插件执行，此方法将订阅 MessageHub 事件
         /// </summary>
         /// <returns></returns>
-        public Task Execute(JsonElement data);
+        public Task Execute<T>(T data);
         
         /// <summary>
         /// 插件卸载，将在收到卸载指令，程序退出前执行

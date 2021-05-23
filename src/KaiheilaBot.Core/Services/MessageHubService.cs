@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Easy.MessageHub;
 using KaiheilaBot.Core.Common.Serializers;
+using KaiheilaBot.Core.Extension;
 using KaiheilaBot.Core.Models.Events;
 using KaiheilaBot.Core.Models.Events.ChannelRelatedEvents;
 using KaiheilaBot.Core.Models.Events.GuildMemberEvents;
@@ -21,7 +24,7 @@ namespace KaiheilaBot.Core.Services
         private readonly ILogger<MessageHubService> _logger;
 
         private readonly MessageHub _messageHub = new();
-        private readonly Dictionary<Guid, string> _subscribers = new();
+        private readonly Dictionary<string, List<Guid>> _subscribers = new();
 
         public MessageHubService(ILogger<MessageHubService> logger)
         {
@@ -198,15 +201,183 @@ namespace KaiheilaBot.Core.Services
         /// <summary>
         /// 订阅消息
         /// </summary>
-        /// <param name="action">消息处理 Action</param>
+        /// <param name="plugin">插件实例</param>
+        /// <param name="required">插件需求的消息类型列表</param>
         /// <param name="pluginUniqueId">插件唯一 ID</param>
-        /// <typeparam name="T">订阅的消息类型</typeparam>
         /// <returns></returns>
-        public Guid Subscribe<T>(Action<T> action, string pluginUniqueId)
+        public List<Guid> Subscribe(IPlugin plugin, IEnumerable<string> required, string pluginUniqueId)
         {
-            var subGuid = _messageHub.Subscribe(action);
-            _subscribers.Add(subGuid, pluginUniqueId);
-            return subGuid;
+            var guidList = new List<Guid>();
+            foreach (var type in required)
+            {
+                switch (type)
+                {
+                    // MessageRelatedEvents
+                    case "TextMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseMessageEvent<TextMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "ImageMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseMessageEvent<ImageMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "VideoMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseMessageEvent<VideoMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "FileMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseMessageEvent<FileMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "KmarkdownMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseMessageEvent<KmarkdownMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "CardMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseMessageEvent<CardMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+
+                    // UserRelatedEvents
+                    case "ExitedChannelEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<ExitedChannelEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "JoinedChannelEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<JoinedChannelEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "MessageBtnClickEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<MessageBtnClickEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "SelfExitedGuildEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<SelfExitedGuildEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "SelfJoinedGuildEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<SelfJoinedGuildEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "UserUpdatedEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<UserUpdatedEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    
+                    // ChannelRelatedEvent
+                    case "AddedChannelEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<AddedChannelEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "AddedReactionEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<AddedReactionEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "DeletedChannelEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedChannelEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "DeletedMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "DeletedReactionEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedReactionEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "PinnedMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<PinnedMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "UnpinnedMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<UnpinnedMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "UpdatedChannelEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedChannelEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "UpdatedMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                
+                    // GuildMemberEvents
+                    case "ExitedGuildEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<ExitedGuildEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "GuildMemberOfflineEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<GuildMemberOfflineEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "GuildMemberOnlineEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<GuildMemberOnlineEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "JoinedGuildEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<JoinedGuildEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "UpdatedGuildMemberEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedGuildMemberEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+
+                    // GuildRoleEvents
+                    case "AddedRoleEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<AddedRoleEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "DeletedRoleEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedRoleEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "UpdatedRoleEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedRoleEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                
+                    // PrivateMessageEvents
+                    case "DeletedPrivateMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedPrivateMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "PrivateAddedReactionEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<PrivateAddedReactionEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "PrivateDeletedReactionEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<PrivateDeletedReactionEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "UpdatedPrivateMessageEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedPrivateMessageEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    
+                    // GuildRelatedEvents
+                    case "AddedBlockListEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<AddedBlockListEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "DeletedBlockListEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedBlockListEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "DeletedGuildEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedGuildEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                    case "UpdatedGuildEvent":
+                        guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedGuildEvent>>
+                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                        break;
+                }
+            }
+            _subscribers.Add(pluginUniqueId, guidList);
+            _logger.LogInformation($"成功注册插件 {pluginUniqueId} 的订阅事件，共 {guidList.Count} 个");
+            return guidList;
         }
 
         /// <summary>
@@ -220,10 +391,13 @@ namespace KaiheilaBot.Core.Services
                 return;
             }
 
-            var key = _subscribers.First
-                (x => x.Value == pluginUniqueId).Key;
-            _messageHub.Unsubscribe(key);
-            _subscribers.Remove(key);
+            var guids = _subscribers.First
+                (x => x.Key == pluginUniqueId).Value;
+            foreach (var guid in guids)
+            {
+                _messageHub.Unsubscribe(guid);
+            }
+            _subscribers.Remove(pluginUniqueId);
         }
 
         /// <summary>
@@ -236,7 +410,7 @@ namespace KaiheilaBot.Core.Services
             try
             {
                 var _ = _subscribers.First
-                    (x => x.Value == pluginUniqueId);
+                    (x => x.Key == pluginUniqueId);
                 return true;
             }
             catch (InvalidOperationException)
@@ -265,6 +439,19 @@ namespace KaiheilaBot.Core.Services
             }
             _messageHub.Publish(messageEvent);
             _logger.LogInformation($"已成功发布类型为 {typeof(T)} 的消息至 MessageHub，Sn = {sn}");
+        }
+
+        private async Task ExecuteAction<T>(IPlugin plugin, T data, string pluginUniqueId)
+        {
+            await Task.Delay(500);  // 1.规避 API 速率限制    2.等待 Logger 响应
+            var sw = new Stopwatch();
+            sw.Start();
+            await plugin.Execute(data);
+            sw.Stop();
+            _logger.LogInformation(
+                $"{pluginUniqueId} 插件处理 " +
+                $"{data.GetType().ToString().Split('1')[1]} 类型信息完成，" +
+                $"耗时 {sw.ElapsedMilliseconds} 毫秒");
         }
     }
 }
