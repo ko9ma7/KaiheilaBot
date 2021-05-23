@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using KaiheilaBot.Core.Models.Events;
 
@@ -17,7 +18,14 @@ namespace KaiheilaBot.Core.Common.Serializers
         /// <returns>反序列化得到的 Record 类型 T</returns>
         public static BaseEvent<T> DeserializeEvent<T>(string jsonString) where T : IBaseEventExtraBody
         {
-            return JsonSerializer.Deserialize<BaseEvent<T>>(jsonString);
+            try
+            {
+                return JsonSerializer.Deserialize<BaseEvent<T>>(jsonString);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -31,7 +39,14 @@ namespace KaiheilaBot.Core.Common.Serializers
         /// <returns>反序列化得到的 Record 类型 T</returns>
         public static BaseMessageEvent<T> DeserializeMessageEvent<T>(string jsonString) where T : IBaseMessageEventDataExtra
         {
-            return JsonSerializer.Deserialize<BaseMessageEvent<T>>(jsonString);
+            try
+            {
+                return JsonSerializer.Deserialize<BaseMessageEvent<T>>(jsonString);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
     }
 }
