@@ -160,7 +160,6 @@ namespace KaiheilaBot.Core.Services
                     _logger.LogWarning("收到不支持的 Close 信息，放弃处理");
                     return;
                 case WebSocketMessageType.Text:
-                    _logger.LogInformation("收到 Text 信息");
                     break;
                 default:
                     _logger.LogError("收到未知格式信息");
@@ -253,7 +252,7 @@ namespace KaiheilaBot.Core.Services
             _logger.LogWarning("机器人状态：超时");
             
             _pingTimer.Enabled = false; 
-            _logger.LogInformation("已关闭 Ping 定时器");
+            _logger.LogWarning("已关闭 Ping 定时器");
 
             if (_pingTimeoutResentTimes == 0)
             {
