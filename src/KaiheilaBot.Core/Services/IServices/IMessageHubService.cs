@@ -4,7 +4,9 @@ namespace KaiheilaBot.Core.Services.IServices
 {
     public interface IMessageHubService
     {
-        public void Publish<T>(T message);
+        public void Publish(string type, string message, long sn);
+
+        public void Publish(int type, string message, long sn);
 
         public Guid Subscribe<T>(Action<T> action, string pluginUniqueId);
 

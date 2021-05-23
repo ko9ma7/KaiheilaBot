@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using KaiheilaBot.Core.Common.Helpers;
 using KaiheilaBot.Core.Common.Serializers;
 using KaiheilaBot.Core.Models.Requests.Gateway;
 using KaiheilaBot.Core.Models.Responses.Gateway;
@@ -26,7 +27,7 @@ namespace KaiheilaBot.Core.Services
         private BotStatus _status;
         private WebsocketClient _client;
         private ManualResetEvent _event;
-        private int _latestSn;
+        private long _latestSn;
         private int _pingTimeoutResentTimes;
 
         /// <summary>
@@ -183,12 +184,25 @@ namespace KaiheilaBot.Core.Services
             switch (type)
             {
                 case 0:
-                    var sn = json.GetProperty("sn").GetInt32();
+                    var sn = json.GetProperty("sn").GetInt64();
                     _logger.LogInformation($"收到 Event 信令，Sn = {sn}");
+
+                    var typeNumber = json.GetProperty("d").GetProperty("type").GetInt32();
                     
-                    _logger.LogInformation($"发布 Event 信令 Sn = {sn} 数据至 Message Hub，类型：{json.GetType()}");
-                    _messageHubService.Publish(json);
-                    
+                    if (typeNumber != 255)
+                    {
+                        _logger.LogDebug($"发布 Event 信令 Sn = {sn} 数据至 MessageHub，MessageRelatedEvent");
+                        _messageHubService.Publish(typeNumber, message.Text, sn);
+                        _latestSn = sn;
+                        break;
+                    }
+
+                    var typeStr = NamingPolicyHelper.UnderlineToCapital(
+                        json.GetProperty("d").GetProperty("extra").GetProperty("type").GetString()) + "Event";
+
+                    _logger.LogDebug($"发布 Event 信令 Sn = {sn} 数据至 MessageHub，非 MessageRelatedEvent");
+                    _messageHubService.Publish(typeStr, message.Text, sn);
+
                     _latestSn = sn;
                     break;
                 case 3:
