@@ -6,7 +6,7 @@ namespace KaiheilaBot.Core.Models.Events
     /// Event -> "d" -> "extra"
     /// </summary>
     /// <typeparam name="T">Body Record</typeparam>
-    public record BaseEventExtra<T>
+    public record BaseEventExtra<T> where T : IBaseEventExtraBody
     {
         [JsonPropertyName("type")]
         public string Type { get; set; }
