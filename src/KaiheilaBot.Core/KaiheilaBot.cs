@@ -23,29 +23,57 @@ namespace KaiheilaBot.Core
         {
             var configFilePath = Path.Join(instanceDirectory, "config.yml");
             var config = await YamlSerializer.Deserialize<Dictionary<string, string>>(configFilePath);
-            Console.WriteLine(config["Token"]);
             if (config["Token"] == "null")
             {
+                await Console.Error.WriteLineAsync("错误的配置：Token");
                 return 1;
             }
 
-            // TODO: 通过配置文件设置Logger
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .Enrich.WithAssemblyName()
-                .Enrich.WithAssemblyVersion()
-                .WriteTo.Console()
-                .WriteTo.File(path: @"Logs/log-.log", rollingInterval: RollingInterval.Day, shared: true)
-                .CreateLogger();
+            var rollingIntervalSetting = config["LoggerFileRollingInterval"] switch
+            {
+                "Month" => RollingInterval.Month,
+                "Day" => RollingInterval.Day,
+                "Hour" => RollingInterval.Hour,
+                "Minute" => RollingInterval.Minute,
+                _ => RollingInterval.Infinite
+            };
+
+            if (rollingIntervalSetting == RollingInterval.Infinite)
+            {
+                await Console.Error.WriteLineAsync("错误的配置：LoggerFileRollingInterval");
+                return 1;
+            }
+
+            var loggerConfiguration = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console(outputTemplate: config["LoggerTemplate"])
+                .WriteTo.File(path: $"{config["LoggerFileDirectory"]}/log-.log", 
+                    rollingInterval: rollingIntervalSetting,
+                    outputTemplate: config["LoggerTemplate"],
+                    shared: true);
+
+            switch (config["LoggerMinimumLevel"])
+            {
+                case "Debug":
+                    loggerConfiguration.MinimumLevel.Debug();
+                    break;
+                case "Information":
+                    loggerConfiguration.MinimumLevel.Information();
+                    break;
+                default:
+                    return 1;
+            }
+
+            Log.Logger = loggerConfiguration.CreateLogger();
 
             try
             {
-                Log.Logger.Information("Starting host...");
+                Log.Logger.Information("正在启动 Generic Host...");
                 await Run(instanceDirectory);
             }
             catch (Exception ex)
             {
-                Log.Fatal(ex, "Host terminated unexpectedly");
+                Log.Fatal($"Generic Host 因未知错误退出，错误：{ex}");
                 return 1;
             }
             finally

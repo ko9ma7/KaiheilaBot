@@ -5,3 +5,15 @@ Token: "null"
 
 # 开黑啦 Http Api 基地址
 HttpApiBaseUrl: "https://www.kaiheila.cn/api/v3"
+
+# 日志记录最低等级，可为 Debug(建议调试环境使用) 或 Information(建议生产环境使用)
+LoggerMinimumLevel: "Information"
+
+# 日志文件存储文件夹
+LoggerFileDirectory: "Logs"
+
+# 日志文件滚动周期，可选项：Month | Day | Hour | Minute
+LoggerFileRollingInterval: "Day"
+
+# 日志模版，不建议更改，除非你知道你在干什么
+LoggerTemplate: "[{Timestamp:HH:mm:ss}][{Level:u3}] {Message:lj}{NewLine}{Exception}"
