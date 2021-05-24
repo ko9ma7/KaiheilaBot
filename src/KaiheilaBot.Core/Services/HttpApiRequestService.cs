@@ -148,6 +148,24 @@ namespace KaiheilaBot.Core.Services
                             return null;
                         }
                         break;
+                    case "Page":
+                        if (val is int page)
+                        {
+                            AddParameter("page", page);
+                        }
+                        break;
+                    case "PageSize":
+                        if (val is int pageSize)
+                        {
+                            AddParameter("page_size", pageSize);
+                        }
+                        break;
+                    case "Sort":
+                        if (val is string sort)
+                        {
+                            AddParameter("sort", sort);
+                        }
+                        break;
                     default:
                         if (val is not null)
                         {
