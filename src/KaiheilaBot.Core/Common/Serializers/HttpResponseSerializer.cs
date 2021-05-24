@@ -14,7 +14,7 @@ namespace KaiheilaBot.Core.Common.Serializers
         /// 命名空间 KaiheilaBot.Core.Models.Response 下
         /// </typeparam>
         /// <returns>反序列化得到的 Record 类型 T</returns>
-        public static BaseResponse<T> Deserialize<T>(string jsonString) where T : BaseResponseData
+        public static BaseResponse<T> Deserialize<T>(string jsonString) where T : IBaseResponseData
         {
             return JsonSerializer.Deserialize<BaseResponse<T>>(jsonString);
         }

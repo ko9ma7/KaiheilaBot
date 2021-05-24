@@ -1,6 +1,6 @@
 namespace KaiheilaBot.Core.Models.Responses
 {
-    public record BaseResponseData
+    public interface IBaseResponseData
     {
     }
 }
