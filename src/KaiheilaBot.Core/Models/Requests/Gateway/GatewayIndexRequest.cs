@@ -9,9 +9,9 @@ namespace KaiheilaBot.Core.Models.Requests.Gateway
     /// </summary>
     public record GatewayIndexRequest : BaseRequest
     {
-        public new string ResourcePath { get; init; } = "gateway/index";
+        public override string ResourcePath { get; init; } = "gateway/index";
         
-        public new Method RequestMethod { get; init; } = Method.GET;
+        public override Method RequestMethod { get; init; } = Method.GET;
         
         [ParameterName("compress")]
         public int Compress { get; set; }

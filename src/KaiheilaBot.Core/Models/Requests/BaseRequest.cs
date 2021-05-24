@@ -2,10 +2,10 @@ using RestSharp;
 
 namespace KaiheilaBot.Core.Models.Requests
 {
-    public record BaseRequest
+    public abstract record BaseRequest
     {
-        public Method RequestMethod { get; init; }
+        public abstract Method RequestMethod { get; init; }
 
-        public string ResourcePath { get; init; }
+        public abstract string ResourcePath { get; init; }
     }
 }

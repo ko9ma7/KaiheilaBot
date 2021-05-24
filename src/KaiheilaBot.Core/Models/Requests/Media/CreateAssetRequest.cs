@@ -5,9 +5,9 @@ namespace KaiheilaBot.Core.Models.Requests.Media
 {
     public record CreateAssetRequest : BaseRequest
     {
-        public new Method RequestMethod { get; init; } = Method.POST;
+        public override Method RequestMethod { get; init; } = Method.POST;
 
-        public new string ResourcePath { get; init; } = "asset/create";
+        public override string ResourcePath { get; init; } = "asset/create";
         
         public string FilePath { get; set; }
     }
