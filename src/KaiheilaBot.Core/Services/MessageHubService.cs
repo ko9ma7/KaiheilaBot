@@ -510,9 +510,12 @@ namespace KaiheilaBot.Core.Services
             // ReSharper disable once PossibleNullReferenceException
             await (Task) method.Invoke(instance, new object[] {data});
             sw.Stop();
+
+            var dataType = typeof(T) == typeof(HttpServerData) ? 
+                "HttpServerData" : data.GetType().ToString().Split('1')[1];
             _logger.LogInformation(
                 $"{id} 插件处理 " +
-                $"{data.GetType().ToString().Split('1')[1]} 类型信息完成，" +
+                $"{dataType} 类型信息完成，" +
                 $"耗时 {sw.ElapsedMilliseconds} 毫秒");
         }
     }

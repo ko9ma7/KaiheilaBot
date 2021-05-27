@@ -11,11 +11,12 @@ namespace KaiheilaBot.Core.Services
     public class HttpServerService : IHttpServerService
     {
         private readonly ILogger<HttpServerService> _logger;
+        private readonly IPluginService _pluginService;
         private readonly IMessageHubService _messageHubService;
         private readonly IConfiguration _configuration;
         private readonly Webserver _server;
 
-        private readonly List<string> _pluginList;
+        private List<string> _pluginList;
         
         public HttpServerService(
             ILogger<HttpServerService> logger, 
@@ -24,11 +25,10 @@ namespace KaiheilaBot.Core.Services
             IConfiguration configuration)
         {
             _logger = logger;
+            _pluginService = pluginService;
             _messageHubService = messageHubService;
             _configuration = configuration;
             _server = new Webserver();
-
-            _pluginList = pluginService.GetPluginUniqueId();
         }
         
         public Task Start()
@@ -38,9 +38,12 @@ namespace KaiheilaBot.Core.Services
                 _logger.LogInformation("HttpServer 未开启");
                 return Task.CompletedTask;
             }
+            
+            _pluginList = _pluginService.GetPluginUniqueId();
 
             var serverUrl = _configuration["HttpServerUrl"];
             _server.Settings.Headers.Host = serverUrl;
+            _server.Routes.Parameter.Add(HttpMethod.POST, "/{pluginId}", Router);
             _server.Start();
             
             _logger.LogInformation($"已开启 HttpServer，BaseUrl：{serverUrl}");
@@ -58,7 +61,6 @@ namespace KaiheilaBot.Core.Services
             return Task.CompletedTask;
         }
 
-        [ParameterRoute(HttpMethod.POST, "/{pluginId}")]
         public async Task Router(HttpContext ctx)
         {
             var pluginId = ctx.Request.Url.Parameters["pluginId"];
