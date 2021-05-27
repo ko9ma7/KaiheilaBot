@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Easy.MessageHub;
 using KaiheilaBot.Core.Common.Serializers;
@@ -201,182 +202,218 @@ namespace KaiheilaBot.Core.Services
         /// <summary>
         /// 订阅消息
         /// </summary>
-        /// <param name="plugin">插件实例</param>
-        /// <param name="required">插件需求的消息类型列表</param>
-        /// <param name="pluginUniqueId">插件唯一 ID</param>
+        /// <param name="pluginInfo">插件信息</param>
         /// <returns></returns>
-        public List<Guid> Subscribe(IPlugin plugin, IEnumerable<string> required, string pluginUniqueId)
+        public List<Guid> Subscribe(PluginInfo pluginInfo)
         {
             var guidList = new List<Guid>();
-            foreach (var type in required)
+            foreach (var executor in pluginInfo.GetExecutors())
             {
+                var type = executor.TypeString;
                 switch (type)
                 {
                     // MessageRelatedEvents
-                    case "TextMessageEvent":
+                    case "ITextMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseMessageEvent<TextMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "ImageMessageEvent":
+                    case "IImageMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseMessageEvent<ImageMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "VideoMessageEvent":
+                    case "IVideoMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseMessageEvent<VideoMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "FileMessageEvent":
+                    case "IFileMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseMessageEvent<FileMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "KmarkdownMessageEvent":
+                    case "IKmarkdownMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseMessageEvent<KmarkdownMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "CardMessageEvent":
+                    case "ICardMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseMessageEvent<CardMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
 
                     // UserRelatedEvents
-                    case "ExitedChannelEvent":
+                    case "IExitedChannelEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<ExitedChannelEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "JoinedChannelEvent":
+                    case "IJoinedChannelEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<JoinedChannelEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "MessageBtnClickEvent":
+                    case "IMessageBtnClickEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<MessageBtnClickEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "SelfExitedGuildEvent":
+                    case "ISelfExitedGuildEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<SelfExitedGuildEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "SelfJoinedGuildEvent":
+                    case "ISelfJoinedGuildEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<SelfJoinedGuildEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "UserUpdatedEvent":
+                    case "IUserUpdatedEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<UserUpdatedEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
                     
                     // ChannelRelatedEvent
-                    case "AddedChannelEvent":
+                    case "IAddedChannelEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<AddedChannelEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "AddedReactionEvent":
+                    case "IAddedReactionEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<AddedReactionEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "DeletedChannelEvent":
+                    case "IDeletedChannelEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedChannelEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "DeletedMessageEvent":
+                    case "IDeletedMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "DeletedReactionEvent":
+                    case "IDeletedReactionEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedReactionEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "PinnedMessageEvent":
+                    case "IPinnedMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<PinnedMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "UnpinnedMessageEvent":
+                    case "IUnpinnedMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<UnpinnedMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "UpdatedChannelEvent":
+                    case "IUpdatedChannelEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedChannelEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "UpdatedMessageEvent":
+                    case "IUpdatedMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
                 
                     // GuildMemberEvents
-                    case "ExitedGuildEvent":
+                    case "IExitedGuildEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<ExitedGuildEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "GuildMemberOfflineEvent":
+                    case "IGuildMemberOfflineEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<GuildMemberOfflineEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "GuildMemberOnlineEvent":
+                    case "IGuildMemberOnlineEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<GuildMemberOnlineEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "JoinedGuildEvent":
+                    case "IJoinedGuildEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<JoinedGuildEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "UpdatedGuildMemberEvent":
+                    case "IUpdatedGuildMemberEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedGuildMemberEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
 
                     // GuildRoleEvents
-                    case "AddedRoleEvent":
+                    case "IAddedRoleEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<AddedRoleEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "DeletedRoleEvent":
+                    case "IDeletedRoleEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedRoleEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "UpdatedRoleEvent":
+                    case "IUpdatedRoleEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedRoleEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
                 
                     // PrivateMessageEvents
-                    case "DeletedPrivateMessageEvent":
+                    case "IDeletedPrivateMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedPrivateMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "PrivateAddedReactionEvent":
+                    case "IPrivateAddedReactionEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<PrivateAddedReactionEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "PrivateDeletedReactionEvent":
+                    case "IPrivateDeletedReactionEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<PrivateDeletedReactionEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "UpdatedPrivateMessageEvent":
+                    case "IUpdatedPrivateMessageEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedPrivateMessageEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
                     
                     // GuildRelatedEvents
-                    case "AddedBlockListEvent":
+                    case "IAddedBlockListEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<AddedBlockListEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "DeletedBlockListEvent":
+                    case "IDeletedBlockListEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedBlockListEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "DeletedGuildEvent":
+                    case "IDeletedGuildEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<DeletedGuildEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
-                    case "UpdatedGuildEvent":
+                    case "IUpdatedGuildEventExecutor":
                         guidList.Add(_messageHub.Subscribe<BaseEvent<UpdatedGuildEvent>>
-                            (async data => await ExecuteAction(plugin, data, pluginUniqueId)));
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data, 
+                                executor.Method, executor.ExecutorClassInstance)));
                         break;
                 }
             }
-            _subscribers.Add(pluginUniqueId, guidList);
-            _logger.LogInformation($"成功注册插件 {pluginUniqueId} 的订阅事件，共 {guidList.Count} 个");
+            _subscribers.Add(pluginInfo.GetId(), guidList);
+            _logger.LogInformation($"成功注册插件 {pluginInfo.GetId()} 的订阅事件，共 {guidList.Count} 个");
             return guidList;
         }
 
@@ -384,11 +421,11 @@ namespace KaiheilaBot.Core.Services
         /// 取消订阅
         /// </summary>
         /// <param name="pluginUniqueId">插件唯一 ID</param>
-        public void UnSubscribe(string pluginUniqueId)
+        public bool UnSubscribe(string pluginUniqueId)
         {
             if (CheckSubscribed(pluginUniqueId) is false)
             {
-                return;
+                return false;
             }
 
             var guids = _subscribers.First
@@ -398,6 +435,7 @@ namespace KaiheilaBot.Core.Services
                 _messageHub.Unsubscribe(guid);
             }
             _subscribers.Remove(pluginUniqueId);
+            return true;
         }
 
         /// <summary>
@@ -441,15 +479,15 @@ namespace KaiheilaBot.Core.Services
             _logger.LogInformation($"已成功发布类型为 {typeof(T)} 的消息至 MessageHub，Sn = {sn}");
         }
 
-        private async Task ExecuteAction<T>(IPlugin plugin, T data, string pluginUniqueId)
+        private async Task ExecuteAction<T>(string id, T data, MethodInfo method, object instance)
         {
             await Task.Delay(500);  // 1.规避 API 速率限制    2.等待 Logger 响应
             var sw = new Stopwatch();
             sw.Start();
-            await plugin.Execute(data);
+            await (Task) method.Invoke(instance, new object[] {data});
             sw.Stop();
             _logger.LogInformation(
-                $"{pluginUniqueId} 插件处理 " +
+                $"{id} 插件处理 " +
                 $"{data.GetType().ToString().Split('1')[1]} 类型信息完成，" +
                 $"耗时 {sw.ElapsedMilliseconds} 毫秒");
         }
