@@ -13,16 +13,19 @@ namespace KaiheilaBot.Core
         private readonly ILogger<BotHostedService> _logger;
         private readonly IBotWebsocketService _botWebsocketService;
         private readonly IPluginService _pluginService;
+        private readonly IHttpServerService _httpServerService;
         private readonly IConfiguration _configuration;
 
         public BotHostedService(ILogger<BotHostedService> logger, 
             IBotWebsocketService botWebsocketService,
             IPluginService pluginService,
+            IHttpServerService httpServerService,
             IConfiguration configuration)
         {
             _logger = logger;
             _botWebsocketService = botWebsocketService;
             _pluginService = pluginService;
+            _httpServerService = httpServerService;
             _configuration = configuration;
         }
         
@@ -33,6 +36,8 @@ namespace KaiheilaBot.Core
             
             _pluginService.SubscribeToMessageHub();
 
+            await _httpServerService.Start();
+
             await _botWebsocketService.Connect();
         }
 
@@ -40,6 +45,7 @@ namespace KaiheilaBot.Core
         {
             // TODO: 卸载动作
             _pluginService.UnloadPlugin();
+            _httpServerService.Stop();
             return Task.CompletedTask;
         }
     }

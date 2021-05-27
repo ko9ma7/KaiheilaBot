@@ -15,6 +15,7 @@ using KaiheilaBot.Core.Models.Events.GuildRoleEvents;
 using KaiheilaBot.Core.Models.Events.MessageRelatedEvents;
 using KaiheilaBot.Core.Models.Events.PrivateMessageEvents;
 using KaiheilaBot.Core.Models.Events.UserRelatedEvents;
+using KaiheilaBot.Core.Models.Service;
 using KaiheilaBot.Core.Services.IServices;
 using Microsoft.Extensions.Logging;
 
@@ -199,6 +200,21 @@ namespace KaiheilaBot.Core.Services
             }
         }
 
+        /// <summary>
+        /// 发布消息（由 HttpServer 接受的消息）
+        /// </summary>
+        /// <param name="pluginId">插件 ID</param>
+        /// <param name="data">消息内容</param>
+        public void Publish(string pluginId, string data)
+        {
+            var dataPacked = new HttpServerData()
+            {
+                PluginId = pluginId,
+                Data = data
+            };
+            _messageHub.Publish(dataPacked);
+        }
+        
         /// <summary>
         /// 订阅消息
         /// </summary>
@@ -410,6 +426,13 @@ namespace KaiheilaBot.Core.Services
                             (async data => await ExecuteAction(pluginInfo.GetId(), data, 
                                 executor.Method, executor.ExecutorClassInstance)));
                         break;
+                    
+                    // HttpServerDataResolver
+                    case "HttpServerData":
+                        guidList.Add(_messageHub.Subscribe<HttpServerData>
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data,
+                                executor.Method, executor.ExecutorClassInstance)));
+                        break;
                 }
             }
             _subscribers.Add(pluginInfo.GetId(), guidList);
@@ -479,11 +502,12 @@ namespace KaiheilaBot.Core.Services
             _logger.LogInformation($"已成功发布类型为 {typeof(T)} 的消息至 MessageHub，Sn = {sn}");
         }
 
-        private async Task ExecuteAction<T>(string id, T data, MethodInfo method, object instance)
+        private async Task ExecuteAction<T>(string id, T data, MethodBase method, object instance)
         {
             await Task.Delay(500);  // 1.规避 API 速率限制    2.等待 Logger 响应
             var sw = new Stopwatch();
             sw.Start();
+            // ReSharper disable once PossibleNullReferenceException
             await (Task) method.Invoke(instance, new object[] {data});
             sw.Stop();
             _logger.LogInformation(

@@ -1,4 +1,5 @@
 # KaiheilaBot Instance 配置文件
+# 请注意：所有的配置选项均为字符串
 
 # 机器人 Websocket Token，若为 null，这个 Instance 将不会运行
 Token: "null"
@@ -17,3 +18,9 @@ LoggerFileRollingInterval: "Day"
 
 # 日志模版，不建议更改，除非你知道你在干什么
 LoggerTemplate: "[{Timestamp:HH:mm:ss}][{Level:u3}] {Message:lj}{NewLine}{Exception}"
+
+# 是否启用内置 HttpServer，请先确认你所使用的插件需要此功能
+EnableHttpServer: "false"
+
+# 内置 HttpServer 地址
+HttpServerUrl: "http://localhost:8080"

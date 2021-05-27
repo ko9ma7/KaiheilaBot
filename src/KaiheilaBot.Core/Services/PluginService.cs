@@ -78,6 +78,16 @@ namespace KaiheilaBot.Core.Services
                 var plugin = (IPlugin)Activator.CreateInstance(iPluginType);
                 var pi = new PluginInfo(name, pluginFilePath, plugin);
 
+                // 查找插件中是否存在 HttpServerDataResolver
+                var iHttpServerDataResolverType = pluginTypes.FirstOrDefault(
+                    t => typeof(IHttpServerDataResolver).IsAssignableFrom(t) && t.IsAbstract is false);
+                if (iHttpServerDataResolverType is not null)
+                {
+                    var resolver = (IHttpServerDataResolver) Activator.CreateInstance(iHttpServerDataResolverType);
+                    var resolveMethod = iHttpServerDataResolverType.GetMethod("Resolve");
+                    pi.AddExecutor("HttpServerData", resolveMethod, resolver);
+                }
+                
                 foreach (var eventExecutorInterfaceType in executors)
                 {
                     // 创建 Executor 类型
