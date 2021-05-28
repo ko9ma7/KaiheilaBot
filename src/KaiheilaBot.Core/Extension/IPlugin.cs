@@ -10,8 +10,7 @@ namespace KaiheilaBot.Core.Extension
     public interface IPlugin
     {
         /// <summary>
-        /// 插件初始化，将在 MessageHub 订阅之前执行，此时已完成 Host 构建，
-        /// 此时将会传入 Logger 和 HttpApiRequestService，插件应保存这两个实例
+        /// 插件初始化，将在 MessageHub 订阅之前执行，此时已完成 Host 构建
         /// </summary>
         /// <param name="logger">ILogger 实例</param>
         /// <param name="httpApiRequestService">IHttpApiRequestService 实例</param>
@@ -23,6 +22,7 @@ namespace KaiheilaBot.Core.Extension
         /// 插件卸载，将在收到卸载指令，程序退出前执行
         /// </summary>
         /// <returns></returns>
-        public Task Unload();
+        public Task Unload(ILogger<IPlugin> logger, 
+            IHttpApiRequestService httpApiRequestService);
     }
 }
