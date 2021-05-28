@@ -5,5 +5,7 @@ namespace KaiheilaBot.Core.Services.IServices
     public interface IBotWebsocketService
     {
         public Task<int> Connect();
+
+        public Task Stop();
     }
 }

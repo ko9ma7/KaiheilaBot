@@ -12,36 +12,59 @@ namespace KaiheilaBot.Core
         private readonly IBotWebsocketService _botWebsocketService;
         private readonly IPluginService _pluginService;
         private readonly IHttpServerService _httpServerService;
+        private readonly IMessageHubService _messageHubService;
+        private readonly IHostApplicationLifetime _hostApplicationLifetime;
 
         public BotHostedService(ILogger<BotHostedService> logger, 
             IBotWebsocketService botWebsocketService,
             IPluginService pluginService,
-            IHttpServerService httpServerService)
+            IHttpServerService httpServerService,
+            IMessageHubService messageHubService,
+            IHostApplicationLifetime hostApplicationLifetime)
         {
             _logger = logger;
             _botWebsocketService = botWebsocketService;
             _pluginService = pluginService;
             _httpServerService = httpServerService;
+            _messageHubService = messageHubService;
+            _hostApplicationLifetime = hostApplicationLifetime;
         }
         
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            _hostApplicationLifetime.ApplicationStarted.Register(OnStarted);
+            _hostApplicationLifetime.ApplicationStopping.Register(OnStopping);
+            _hostApplicationLifetime.ApplicationStopped.Register(OnStopped);
+            
             _logger.LogInformation("Bot 启动中...");
             await _pluginService.LoadPlugins();
-            
+
             _pluginService.SubscribeToMessageHub();
 
             await _httpServerService.Start();
-
-            await _botWebsocketService.Connect();
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            // TODO: 卸载动作
-            _pluginService.UnloadPlugin();
-            _httpServerService.Stop();
             return Task.CompletedTask;
+        }
+
+        private void OnStarted()
+        {
+            _botWebsocketService.Connect();
+        }
+        
+        private void OnStopping()
+        {
+            _logger.LogInformation("准备关闭...");
+            Task.Run(() => _httpServerService.Stop());
+            Task.Run(() => _botWebsocketService.Stop()).Wait();
+            _pluginService.UnloadPlugin();
+            _messageHubService.Dispose();
+        }
+        
+        private void OnStopped(){
+            _logger.LogInformation("机器人已停止");
         }
     }
 }

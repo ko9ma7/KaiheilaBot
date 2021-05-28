@@ -483,7 +483,15 @@ namespace KaiheilaBot.Core.Services
                 return false;
             }
         }
-        
+
+        /// <summary>
+        /// 卸载 MessageHub
+        /// </summary>
+        public void Dispose()
+        {
+            _messageHub.Dispose();
+        }
+
         private void PublishBaseEvent<T>(BaseEvent<T> baseEvent, long sn) where T : IBaseEventExtraBody
         {
             if (baseEvent is null)

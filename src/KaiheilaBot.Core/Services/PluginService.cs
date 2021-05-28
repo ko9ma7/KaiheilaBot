@@ -143,7 +143,9 @@ namespace KaiheilaBot.Core.Services
 
         public void UnloadPlugin()
         {
-            foreach (var pi in _plugins)
+            var unloadGroup = new PluginInfo[_plugins.Count];
+            _plugins.CopyTo(unloadGroup);
+            foreach (var pi in unloadGroup)
             {
                 UnloadPlugin(pi.GetId());
             }
@@ -157,13 +159,15 @@ namespace KaiheilaBot.Core.Services
                 return;
             }
 
-            if (_messageHubService.UnSubscribe(plugin.GetId()) is true)
+            if (_messageHubService.UnSubscribe(plugin.GetId()) is not true)
             {
-                plugin.GetPluginInstance().Unload(
-                    _serviceProvider.GetService<ILogger<IPlugin>>(),
-                    _serviceProvider.GetService<IHttpApiRequestService>());
-                _plugins.Remove(plugin);
+                return;
             }
+            plugin.GetPluginInstance().Unload(
+                _serviceProvider.GetService<ILogger<IPlugin>>(),
+                _serviceProvider.GetService<IHttpApiRequestService>());
+            _logger.LogInformation($"已卸载插件 {plugin.GetId()}");
+            _plugins.Remove(plugin);
         }
 
         public List<string> GetPluginUniqueId()

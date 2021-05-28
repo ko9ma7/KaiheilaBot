@@ -66,6 +66,9 @@ namespace KaiheilaBot.Core.Services
         /// <returns>0：正常退出；1：超时退出；</returns>
         public async Task<int> Connect()
         {
+            await Task.Delay(1000);
+            _logger.LogInformation("准备启动 Websocket...");
+            
             var url = await GetWebsocketUrl();
 
             if (_status != BotStatus.Gateway)
@@ -96,7 +99,21 @@ namespace KaiheilaBot.Core.Services
 
             return _status == BotStatus.Timeout ? 1 : 0;
         }
-        
+
+        /// <summary>
+        /// 停止 Websocket
+        /// </summary>
+        /// <returns></returns>
+        public async Task Stop()
+        {
+            _event.Set();
+            await Task.Delay(1000);
+            _event.Dispose();
+            await Task.Delay(1000);
+            _status = BotStatus.Close;
+            _logger.LogInformation("已释放 Websocket");
+        }
+
         /// <summary>
         /// 从 Gateway 获取 Websocket Url. 将会尝试获取 3 次，失败将会返回 Null.
         /// </summary>
@@ -292,7 +309,11 @@ namespace KaiheilaBot.Core.Services
             /// <summary>
             /// Bot 收到 Reconnect 信令
             /// </summary>
-            Reconnect
+            Reconnect,
+            /// <summary>
+            /// 已停止
+            /// </summary>
+            Close
         }
     }
 }

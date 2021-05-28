@@ -17,5 +17,7 @@ namespace KaiheilaBot.Core.Services.IServices
         public bool UnSubscribe(string pluginUniqueId);
 
         public bool CheckSubscribed(string pluginUniqueId);
+
+        public void Dispose();
     }
 }
