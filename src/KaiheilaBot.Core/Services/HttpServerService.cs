@@ -35,7 +35,7 @@ namespace KaiheilaBot.Core.Services
         {
             if (_configuration["EnableHttpServer"] == "false")
             {
-                _logger.LogInformation("HttpServer 未开启");
+                _logger.LogInformation("HS - HttpServer 在配置文件中禁用");
                 return Task.CompletedTask;
             }
             
@@ -46,7 +46,7 @@ namespace KaiheilaBot.Core.Services
             _server.Routes.Parameter.Add(HttpMethod.POST, "/{pluginId}", Router);
             _server.Start();
             
-            _logger.LogInformation($"已开启 HttpServer，BaseUrl：{serverUrl}");
+            _logger.LogInformation($"HS - 已开启 HttpServer，BaseUrl：{serverUrl}");
             return Task.CompletedTask;
         }
 
@@ -57,7 +57,7 @@ namespace KaiheilaBot.Core.Services
                 return Task.CompletedTask;
             }
             _server.Stop();
-            _logger.LogInformation("已关闭 HttpServer");
+            _logger.LogInformation("HS - 已关闭 HttpServer");
             return Task.CompletedTask;
         }
 
@@ -66,7 +66,7 @@ namespace KaiheilaBot.Core.Services
             var pluginId = ctx.Request.Url.Parameters["pluginId"];
             var data = Encoding.UTF8.GetString(ctx.Request.Data);
 
-            _logger.LogDebug($"HttpServer 收到信息：{data}");
+            _logger.LogDebug($"HS - 收到信息：{data}");
             
             string responseData;
 
@@ -74,19 +74,21 @@ namespace KaiheilaBot.Core.Services
             {
                 ctx.Response.StatusCode = 200;
                 responseData = "{\"{status}\":\"success\"}";
+                _logger.LogDebug($"HS - 插件存在，已设置 Response，Status：200，Body：{responseData}");
                 _messageHubService.Publish(pluginId, data);
-                _logger.LogInformation($"HttpServer 收到信息，已发送至 MessageHub，插件 ID：{pluginId}");
+                _logger.LogInformation($"HS - 收到信息，已发送至 MessageHub，插件 ID：{pluginId}");
             }
             else
             {
                 ctx.Response.StatusCode = 500;
                 responseData = "{\"status\":\"failed\"}";
-                _logger.LogWarning($"HttpServer收到不受支持的信息，请确认插件 {pluginId} 已加载");
+                _logger.LogDebug($"HS - 插件不存在，已设置 Response，Status：500，Body：{responseData}");
+                _logger.LogWarning($"HS - 收到不受支持的信息，请确认插件 {pluginId} 已加载");
             }
 
             ctx.Response.ContentType = "application/json";
             await ctx.Response.SendAsync(responseData);
-            _logger.LogDebug("HttpServer 已返回 Response");
+            _logger.LogDebug("HS - 已返回 Response");
         }
     }
 }

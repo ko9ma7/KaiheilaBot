@@ -42,7 +42,7 @@ namespace KaiheilaBot.Core.Services
         public IHttpApiRequestService AddParameter<T>(string paramName, T paramValue)
         {
             _params.Add(paramName, paramValue.ToString());
-            _logger.LogDebug($"HttpRequest - 添加 RestRequest 参数：{paramName} - {paramValue.ToString()}");
+            _logger.LogDebug($"HR - 添加 RestRequest 参数：{paramName} - {paramValue.ToString()}");
             return this;
         }
 
@@ -56,7 +56,7 @@ namespace KaiheilaBot.Core.Services
         public IHttpApiRequestService AddPostBody<T>(string bodyParamName, T bodyParamValue)
         {
             _body.Add(bodyParamName, bodyParamValue.ToString());
-            _logger.LogDebug($"HttpRequest - 添加 RestRequest Post Body 参数：{bodyParamName} - {bodyParamValue.ToString()}");
+            _logger.LogDebug($"HR - 添加 RestRequest Post Body 参数：{bodyParamName} - {bodyParamValue.ToString()}");
             return this;
         }
 
@@ -68,7 +68,7 @@ namespace KaiheilaBot.Core.Services
         public IHttpApiRequestService SetMethod(Method method)
         {
             _method = method;
-            _logger.LogDebug($"HttpRequest - 设置 RestRequest 为 {_method.ToString()}");
+            _logger.LogDebug($"HR - 设置 RestRequest 为 {_method.ToString()}");
 
             return this;
         }
@@ -81,7 +81,7 @@ namespace KaiheilaBot.Core.Services
         public IHttpApiRequestService SetResourcePath(string path)
         {
             _resourcePath = path;
-            _logger.LogDebug($"HttpRequest - 设置 ResourcePath 为 {_resourcePath}");
+            _logger.LogDebug($"HR - 设置 ResourcePath 为 {_resourcePath}");
             return this;
         }
 
@@ -94,7 +94,7 @@ namespace KaiheilaBot.Core.Services
             _method = Method.POST;
             _resourcePath = "asset/create";
             _filePath = filePath;
-            _logger.LogDebug($"HttpRequest - 文件上传模式，文件路径：{_filePath}");
+            _logger.LogDebug($"HR - 文件上传模式，文件路径：{_filePath}");
             return this;
         }
 
@@ -111,7 +111,7 @@ namespace KaiheilaBot.Core.Services
                 return null;
             }
 
-            _logger.LogDebug($"HttpRequest - 从 RequestRecord 配置获取 Response，配置类型：{typeof(T)}");
+            _logger.LogDebug($"HR - 从 RequestRecord 配置获取 Response，配置类型：{typeof(T)}");
             
             if (typeof(T) == typeof(CreateAssetRequest))
             {

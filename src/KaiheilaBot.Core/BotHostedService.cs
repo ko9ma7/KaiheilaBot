@@ -36,7 +36,7 @@ namespace KaiheilaBot.Core
             _hostApplicationLifetime.ApplicationStopping.Register(OnStopping);
             _hostApplicationLifetime.ApplicationStopped.Register(OnStopped);
             
-            _logger.LogInformation("Bot 启动中...");
+            _logger.LogInformation("HOST - Bot 启动中...");
             await _pluginService.LoadPlugins();
 
             _pluginService.SubscribeToMessageHub();
@@ -56,7 +56,7 @@ namespace KaiheilaBot.Core
         
         private void OnStopping()
         {
-            _logger.LogInformation("准备关闭...");
+            _logger.LogInformation("HOST - 准备关闭...");
             Task.Run(() => _httpServerService.Stop());
             Task.Run(() => _botWebsocketService.Stop()).Wait();
             _pluginService.UnloadPlugin();
@@ -64,7 +64,7 @@ namespace KaiheilaBot.Core
         }
         
         private void OnStopped(){
-            _logger.LogInformation("机器人已停止");
+            _logger.LogInformation("HOST - 机器人已停止");
         }
     }
 }

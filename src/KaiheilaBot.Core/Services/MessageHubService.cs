@@ -36,16 +36,16 @@ namespace KaiheilaBot.Core.Services
             _logger = logger;
             _serviceProvider = serviceProvider;
 
-            _logger.LogDebug("注册 MessageHub 全局消息 Handler");
+            _logger.LogDebug("MH - 注册 MessageHub 全局消息 Handler");
             _messageHub.RegisterGlobalHandler((type, obj) =>
             {
-                _logger.LogDebug($"MessageHub 已成功添加: {type}, 内容: {obj}");
+                _logger.LogDebug($"MH - MessageHub 已成功添加: {type}, 内容: {obj}");
             });
             
-            _logger.LogDebug("注册 MessageHub 全局 Error Handler");
+            _logger.LogDebug("MH - 注册 MessageHub 全局 Error Handler");
             _messageHub.RegisterGlobalErrorHandler((token, e) =>
             {
-                _logger.LogWarning($"MessageHub 出现错误，Key: {token} | 错误: {e}");
+                _logger.LogWarning($"MH - MessageHub 出现错误，Key: {token} | 错误: {e}");
             });
         }
 
@@ -57,11 +57,12 @@ namespace KaiheilaBot.Core.Services
         /// <param name="sn">消息 sn 编号</param>
         public void Publish(string type, string message, long sn)
         {
-            // 可能存在优化方法，复杂度 O(1)，最坏 O(n)
+            // 可能存在优化方法，复杂度 O(1)，最坏 O(LogN)
             // https://stackoverflow.com/questions/4442835/what-is-the-runtime-complexity-of-a-switch-statement
-            // 已验证：在此种设计下，除了一个个判断，使用反射无法获得具体的类型
-            _logger.LogDebug($"MessageHub Publish 收到的类型字符串：{type}");
-            _logger.LogDebug($"MessageHub 收到的消息体: {message}");
+            // 存在格式优化可能，参考：
+            // https://stackoverflow.com/questions/67655790/is-it-possible-to-optimize-large-switch-statements-in-c
+            _logger.LogDebug($"MH - MessageHub Publish 收到的类型字符串：{type}");
+            _logger.LogDebug($"MH - MessageHub 收到的消息体: {message}");
             switch (type)
             {
                 // UserRelatedEvents
@@ -179,8 +180,8 @@ namespace KaiheilaBot.Core.Services
         /// <param name="sn">消息 sn 编号</param>
         public void Publish(int type, string message, long sn)
         {
-            _logger.LogDebug($"MessageHub Publish 收到的类型整数：{type}");
-            _logger.LogDebug($"MessageHub 收到的消息体: {message}");
+            _logger.LogDebug($"MH - MessageHub Publish 收到的类型整数：{type}");
+            _logger.LogDebug($"MH - MessageHub 收到的消息体: {message}");
             switch (type)
             {
                 case 1:
@@ -440,7 +441,7 @@ namespace KaiheilaBot.Core.Services
                 }
             }
             _subscribers.Add(pluginInfo.GetId(), guidList);
-            _logger.LogInformation($"成功注册插件 {pluginInfo.GetId()} 的订阅事件，共 {guidList.Count} 个");
+            _logger.LogInformation($"MH - 成功注册插件 {pluginInfo.GetId()} 的订阅事件，共 {guidList.Count} 个");
             return guidList;
         }
 
@@ -496,22 +497,22 @@ namespace KaiheilaBot.Core.Services
         {
             if (baseEvent is null)
             {
-                _logger.LogWarning($"反序列化 {typeof(T)} 类型消息失败");
+                _logger.LogWarning($"MH - 反序列化 {typeof(T)} 类型消息失败");
                 return;
             }
             _messageHub.Publish(baseEvent);
-            _logger.LogInformation($"已成功发布类型为 {typeof(T)} 的消息至 MessageHub，Sn = {sn}");
+            _logger.LogInformation($"MH - 已成功发布类型为 {typeof(T)} 的消息至 MessageHub，Sn = {sn}");
         }
 
         private void PublishMessageEvent<T>(BaseMessageEvent<T> messageEvent, long sn) where T : IBaseMessageEventDataExtra
         {
             if (messageEvent is null)
             {
-                _logger.LogWarning($"反序列化 {typeof(T)} 类型消息失败");
+                _logger.LogWarning($"MH - 反序列化 {typeof(T)} 类型消息失败");
                 return;
             }
             _messageHub.Publish(messageEvent);
-            _logger.LogInformation($"已成功发布类型为 {typeof(T)} 的消息至 MessageHub，Sn = {sn}");
+            _logger.LogInformation($"MH - 已成功发布类型为 {typeof(T)} 的消息至 MessageHub，Sn = {sn}");
         }
 
         private async Task ExecuteAction<T>(string id, T data, MethodBase method, object instance)
@@ -531,7 +532,7 @@ namespace KaiheilaBot.Core.Services
             var dataType = typeof(T) == typeof(HttpServerData) ? 
                 "HttpServerData" : data.GetType().ToString().Split('1')[1];
             _logger.LogInformation(
-                $"{id} 插件处理 " +
+                $"MH - {id} 插件处理 " +
                 $"{dataType} 类型信息完成，" +
                 $"耗时 {sw.ElapsedMilliseconds} 毫秒");
         }

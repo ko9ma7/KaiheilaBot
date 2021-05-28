@@ -37,7 +37,7 @@ namespace KaiheilaBot.Core.Services
         public async Task LoadPlugins()
         {
             var sw = new Stopwatch();
-            _logger.LogInformation("开始加载插件");
+            _logger.LogInformation("PS - 开始加载插件");
             sw.Start();
             var pluginDirectory = Path.Join(_configuration["PluginFolder"], "Plugins");
             var loaders = new Dictionary<string, PluginLoader>();
@@ -55,14 +55,14 @@ namespace KaiheilaBot.Core.Services
                     pluginDll,
                     sharedTypes: new [] { typeof(IPlugin) });
                 loaders.Add(pluginDll, loader);
-                _logger.LogDebug($"已加载插件文件 {Path.GetFileName(pluginDll)}");
+                _logger.LogDebug($"PS - 已加载插件文件 {Path.GetFileName(pluginDll)}");
             }
 
             var executors = new List<string>();
             foreach (var typeName in Enum.GetNames(typeof(EnumEvents)))
             {
                 executors.Add($"I{typeName}Executor");
-                _logger.LogDebug($"已加载 Event 接口类型 I{typeName}Executor");
+                _logger.LogDebug($"PS - 已加载 Event 接口类型 I{typeName}Executor");
             }
 
             // 读取插件接口和实例化
@@ -84,6 +84,7 @@ namespace KaiheilaBot.Core.Services
                     var resolver = (IHttpServerDataResolver) Activator.CreateInstance(iHttpServerDataResolverType);
                     var resolveMethod = iHttpServerDataResolverType.GetMethod("Resolve");
                     pi.AddExecutor("HttpServerData", resolveMethod, resolver);
+                    _logger.LogDebug($"PS - 已载入插件 {name} 的 Resolver");
                 }
                 
                 foreach (var eventExecutorInterfaceType in executors)
@@ -94,7 +95,7 @@ namespace KaiheilaBot.Core.Services
 
                     if (iType is null)
                     {
-                        _logger.LogError($"创建 Executor 类型时出现错误，ID：{eventExecutorInterfaceType}");
+                        _logger.LogError($"PS - 创建 Executor 类型时出现错误，ID：{eventExecutorInterfaceType}");
                         continue;
                     }
                     
@@ -111,6 +112,7 @@ namespace KaiheilaBot.Core.Services
                     var executor = Activator.CreateInstance(iPluginExecutorType);
                     var executeMethod = iPluginExecutorType.GetMethod("Execute");
                     pi.AddExecutor(eventExecutorInterfaceType, executeMethod, executor);
+                    _logger.LogDebug($"PS - 已载入插件 {name} 的 Executor - {eventExecutorInterfaceType}");
                 }
 
                 _plugins.Add(pi);
@@ -122,15 +124,15 @@ namespace KaiheilaBot.Core.Services
                 await pi.GetPluginInstance().Initialize(
                     _serviceProvider.GetService<ILogger<IPlugin>>(),
                     _serviceProvider.GetService<IHttpApiRequestService>());
-                _logger.LogInformation($"已载入插件 {pi.GetId()}");
+                _logger.LogInformation($"PS - 已载入插件 {pi.GetId()}");
             }
             sw.Stop();
-            _logger.LogInformation($"已完成插件载入，共 {_plugins.Count} 个，耗时：{sw.ElapsedMilliseconds} 毫秒");
+            _logger.LogInformation($"PS - 已完成插件载入，共 {_plugins.Count} 个，耗时：{sw.ElapsedMilliseconds} 毫秒");
         }
 
         public void SubscribeToMessageHub()
         {
-            _logger.LogInformation("开始注册插件 Execute 方法");
+            _logger.LogInformation("PS - 开始注册插件 Execute 方法");
             var sw = new Stopwatch();
             sw.Start();
             foreach (var pi in _plugins)
@@ -138,7 +140,7 @@ namespace KaiheilaBot.Core.Services
                 _messageHubService.Subscribe(pi);
             }
             sw.Stop();
-            _logger.LogInformation($"已完成插件 Execute 方法注册，耗时 {sw.ElapsedMilliseconds} 毫秒");
+            _logger.LogInformation($"PS - 已完成插件 Execute 方法注册，耗时 {sw.ElapsedMilliseconds} 毫秒");
         }
 
         public void UnloadPlugin()
@@ -166,7 +168,7 @@ namespace KaiheilaBot.Core.Services
             plugin.GetPluginInstance().Unload(
                 _serviceProvider.GetService<ILogger<IPlugin>>(),
                 _serviceProvider.GetService<IHttpApiRequestService>());
-            _logger.LogInformation($"已卸载插件 {plugin.GetId()}");
+            _logger.LogInformation($"PS - 已卸载插件 {plugin.GetId()}");
             _plugins.Remove(plugin);
         }
 
