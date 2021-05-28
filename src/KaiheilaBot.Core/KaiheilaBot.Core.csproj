@@ -2,6 +2,17 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
+        <PackageVersion>0.3.0</PackageVersion>
+        <Title>KaiheilaBot.Core</Title>
+        <Authors>KHLSharp</Authors>
+        <Description>.NET 开黑啦机器人框架核心，用于插件的开发</Description>
+        <Copyright>Copyright © 2021 KHLSharp</Copyright>
+        <PackageProjectUrl>https://khlsharp.github.io/khlsharp-documents/</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/KHLSharp/KaiheilaBot/blob/main/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/KHLSharp/KaiheilaBot</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>kaiheila, sdk</PackageTags>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     </PropertyGroup>
 
     <ItemGroup>
