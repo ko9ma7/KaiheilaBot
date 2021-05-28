@@ -15,7 +15,9 @@ using KaiheilaBot.Core.Models.Events.GuildRoleEvents;
 using KaiheilaBot.Core.Models.Events.MessageRelatedEvents;
 using KaiheilaBot.Core.Models.Events.PrivateMessageEvents;
 using KaiheilaBot.Core.Models.Events.UserRelatedEvents;
+using KaiheilaBot.Core.Models.Service;
 using KaiheilaBot.Core.Services.IServices;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace KaiheilaBot.Core.Services
@@ -23,14 +25,17 @@ namespace KaiheilaBot.Core.Services
     public class MessageHubService : IMessageHubService
     {
         private readonly ILogger<MessageHubService> _logger;
+        private readonly IServiceProvider _serviceProvider;
 
         private readonly MessageHub _messageHub = new();
         private readonly Dictionary<string, List<Guid>> _subscribers = new();
 
-        public MessageHubService(ILogger<MessageHubService> logger)
+        public MessageHubService(ILogger<MessageHubService> logger,
+            IServiceProvider serviceProvider)
         {
             _logger = logger;
-            
+            _serviceProvider = serviceProvider;
+
             _logger.LogDebug("注册 MessageHub 全局消息 Handler");
             _messageHub.RegisterGlobalHandler((type, obj) =>
             {
@@ -199,6 +204,21 @@ namespace KaiheilaBot.Core.Services
             }
         }
 
+        /// <summary>
+        /// 发布消息（由 HttpServer 接受的消息）
+        /// </summary>
+        /// <param name="pluginId">插件 ID</param>
+        /// <param name="data">消息内容</param>
+        public void Publish(string pluginId, string data)
+        {
+            var dataPacked = new HttpServerData()
+            {
+                PluginId = pluginId,
+                Data = data
+            };
+            _messageHub.Publish(dataPacked);
+        }
+        
         /// <summary>
         /// 订阅消息
         /// </summary>
@@ -410,6 +430,13 @@ namespace KaiheilaBot.Core.Services
                             (async data => await ExecuteAction(pluginInfo.GetId(), data, 
                                 executor.Method, executor.ExecutorClassInstance)));
                         break;
+                    
+                    // HttpServerDataResolver
+                    case "HttpServerData":
+                        guidList.Add(_messageHub.Subscribe<HttpServerData>
+                            (async data => await ExecuteAction(pluginInfo.GetId(), data,
+                                executor.Method, executor.ExecutorClassInstance)));
+                        break;
                 }
             }
             _subscribers.Add(pluginInfo.GetId(), guidList);
@@ -479,16 +506,25 @@ namespace KaiheilaBot.Core.Services
             _logger.LogInformation($"已成功发布类型为 {typeof(T)} 的消息至 MessageHub，Sn = {sn}");
         }
 
-        private async Task ExecuteAction<T>(string id, T data, MethodInfo method, object instance)
+        private async Task ExecuteAction<T>(string id, T data, MethodBase method, object instance)
         {
             await Task.Delay(500);  // 1.规避 API 速率限制    2.等待 Logger 响应
             var sw = new Stopwatch();
             sw.Start();
-            await (Task) method.Invoke(instance, new object[] {data});
+            // ReSharper disable once PossibleNullReferenceException
+            await (Task) method.Invoke(instance, new object[]
+            {
+                data,
+                _serviceProvider.GetService<ILogger<IPlugin>>(),
+                _serviceProvider.GetService<IHttpApiRequestService>()
+            });
             sw.Stop();
+
+            var dataType = typeof(T) == typeof(HttpServerData) ? 
+                "HttpServerData" : data.GetType().ToString().Split('1')[1];
             _logger.LogInformation(
                 $"{id} 插件处理 " +
-                $"{data.GetType().ToString().Split('1')[1]} 类型信息完成，" +
+                $"{dataType} 类型信息完成，" +
                 $"耗时 {sw.ElapsedMilliseconds} 毫秒");
         }
     }

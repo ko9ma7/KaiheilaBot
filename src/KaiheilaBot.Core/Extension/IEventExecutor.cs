@@ -1,10 +1,11 @@
-﻿using KaiheilaBot.Core.Models.Events.UserRelatedEvents;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using KaiheilaBot.Core.Services.IServices;
+using Microsoft.Extensions.Logging;
 
 namespace KaiheilaBot.Core.Extension
 {
-    public interface IEventExecutor<T> where T : class
+    public interface IEventExecutor<in T> where T : class
     {
-        Task ExecuteInner(T e);
+        Task ExecuteInner(T e, ILogger<IPlugin> logger, IHttpApiRequestService httpApiRequestService);
     }
 }

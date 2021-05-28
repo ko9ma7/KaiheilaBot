@@ -1,8 +1,6 @@
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using KaiheilaBot.Core.Services.IServices;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -13,17 +11,17 @@ namespace KaiheilaBot.Core
         private readonly ILogger<BotHostedService> _logger;
         private readonly IBotWebsocketService _botWebsocketService;
         private readonly IPluginService _pluginService;
-        private readonly IConfiguration _configuration;
+        private readonly IHttpServerService _httpServerService;
 
         public BotHostedService(ILogger<BotHostedService> logger, 
             IBotWebsocketService botWebsocketService,
             IPluginService pluginService,
-            IConfiguration configuration)
+            IHttpServerService httpServerService)
         {
             _logger = logger;
             _botWebsocketService = botWebsocketService;
             _pluginService = pluginService;
-            _configuration = configuration;
+            _httpServerService = httpServerService;
         }
         
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -33,6 +31,8 @@ namespace KaiheilaBot.Core
             
             _pluginService.SubscribeToMessageHub();
 
+            await _httpServerService.Start();
+
             await _botWebsocketService.Connect();
         }
 
@@ -40,6 +40,7 @@ namespace KaiheilaBot.Core
         {
             // TODO: 卸载动作
             _pluginService.UnloadPlugin();
+            _httpServerService.Stop();
             return Task.CompletedTask;
         }
     }

@@ -9,31 +9,28 @@ using KaiheilaBot.Core.Services.IServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using McMaster.NETCore.Plugins;
+using Microsoft.Extensions.DependencyInjection;
 using KaiheilaBot.Core.Models.Events;
-using System.Reflection;
 
 namespace KaiheilaBot.Core.Services
 {
     public class PluginService : IPluginService
     {
         private readonly ILogger<PluginService> _logger;
-        private readonly ILogger<IPlugin> _pluginLogger;
         private readonly IMessageHubService _messageHubService;
-        private readonly IHttpApiRequestService _httpApiRequestService;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
 
         private readonly List<PluginInfo> _plugins = new();
         
         public PluginService(ILogger<PluginService> logger,
-            ILogger<IPlugin> pluginLogger,
             IMessageHubService messageHubService,
-            IHttpApiRequestService httpApiRequestService,
+            IServiceProvider serviceProvider,
             IConfiguration configuration)
         {
             _logger = logger;
-            _pluginLogger = pluginLogger;
             _messageHubService = messageHubService;
-            _httpApiRequestService = httpApiRequestService;
+            _serviceProvider = serviceProvider;
             _configuration = configuration;
         }
         
@@ -61,16 +58,12 @@ namespace KaiheilaBot.Core.Services
                 _logger.LogDebug($"已加载插件文件 {Path.GetFileName(pluginDll)}");
             }
 
-            var executors = new List<string>()
-            {
-                "ITextMessageEventExecutor",
-                "IJoinedChannelEventExecutor"
-            };
-            /*foreach (var typeName in Enum.GetNames(typeof(EnumEvents)))
+            var executors = new List<string>();
+            foreach (var typeName in Enum.GetNames(typeof(EnumEvents)))
             {
                 executors.Add($"I{typeName}Executor");
                 _logger.LogDebug($"已加载 Event 接口类型 I{typeName}Executor");
-            }*/
+            }
 
             // 读取插件接口和实例化
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
@@ -79,28 +72,44 @@ namespace KaiheilaBot.Core.Services
                 var name = Path.GetFileName(pluginFilePath);
                 var pluginTypes = loader.LoadDefaultAssembly().GetTypes();
 
-                var ipluginType = pluginTypes.First(t => typeof(IPlugin).IsAssignableFrom(t) && t.IsAbstract is false);
-                var plugin = (IPlugin)Activator.CreateInstance(ipluginType);
+                var iPluginType = pluginTypes.First(t => typeof(IPlugin).IsAssignableFrom(t) && t.IsAbstract is false);
+                var plugin = (IPlugin)Activator.CreateInstance(iPluginType);
                 var pi = new PluginInfo(name, pluginFilePath, plugin);
 
+                // 查找插件中是否存在 HttpServerDataResolver
+                var iHttpServerDataResolverType = pluginTypes.FirstOrDefault(
+                    t => typeof(IHttpServerDataResolver).IsAssignableFrom(t) && t.IsAbstract is false);
+                if (iHttpServerDataResolverType is not null)
+                {
+                    var resolver = (IHttpServerDataResolver) Activator.CreateInstance(iHttpServerDataResolverType);
+                    var resolveMethod = iHttpServerDataResolverType.GetMethod("Resolve");
+                    pi.AddExecutor("HttpServerData", resolveMethod, resolver);
+                }
+                
                 foreach (var eventExecutorInterfaceType in executors)
                 {
                     // 创建 Executor 类型
-                    var itype = Type.GetType(
+                    var iType = Type.GetType(
                         $"KaiheilaBot.Core.Extension.IEventExecutors.{eventExecutorInterfaceType}");
+
+                    if (iType is null)
+                    {
+                        _logger.LogError($"创建 Executor 类型时出现错误，ID：{eventExecutorInterfaceType}");
+                        continue;
+                    }
                     
                     // 查找插件中是否存在该 Executor 类型
-                    var ipluginExecutorType =
-                        pluginTypes.FirstOrDefault(t => itype.IsAssignableFrom(t) && t.IsAbstract is false);
+                    var iPluginExecutorType =
+                        pluginTypes.FirstOrDefault(t => iType.IsAssignableFrom(t) && t.IsAbstract is false);
 
-                    if (ipluginExecutorType is null)
+                    if (iPluginExecutorType is null)
                     {
                         continue;
                     }
 
                     // 创建实例，创建 Method
-                    var executor = Activator.CreateInstance(ipluginExecutorType);
-                    var executeMethod = ipluginExecutorType.GetMethod("Execute");
+                    var executor = Activator.CreateInstance(iPluginExecutorType);
+                    var executeMethod = iPluginExecutorType.GetMethod("Execute");
                     pi.AddExecutor(eventExecutorInterfaceType, executeMethod, executor);
                 }
 
@@ -110,7 +119,9 @@ namespace KaiheilaBot.Core.Services
             // 执行 Initialize 方法初始化插件
             foreach (var pi in _plugins)
             {
-                await pi.GetPluginInstance().Initialize(_pluginLogger, _httpApiRequestService);
+                await pi.GetPluginInstance().Initialize(
+                    _serviceProvider.GetService<ILogger<IPlugin>>(),
+                    _serviceProvider.GetService<IHttpApiRequestService>());
                 _logger.LogInformation($"已载入插件 {pi.GetId()}");
             }
             sw.Stop();
@@ -148,6 +159,9 @@ namespace KaiheilaBot.Core.Services
 
             if (_messageHubService.UnSubscribe(plugin.GetId()) is true)
             {
+                plugin.GetPluginInstance().Unload(
+                    _serviceProvider.GetService<ILogger<IPlugin>>(),
+                    _serviceProvider.GetService<IHttpApiRequestService>());
                 _plugins.Remove(plugin);
             }
         }
