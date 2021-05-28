@@ -15,7 +15,7 @@ KaiheilaBot 是一个可以使用插件扩展的开黑啦机器人框架，你�
 
 ## :books: 文档 :books:
 
-[KaiheilaBot 开发文档](https://khlsharp.github.io/)
+[KaiheilaBot 开发文档](https://khlsharp.github.io/khlsharp-documents/)
 
 ## :electric_plug: 关于插件 :electric_plug:
 
@@ -27,7 +27,7 @@ KaiheilaBot 是一个可以使用插件扩展的开黑啦机器人框架，你�
 * 核心提供了向开黑啦服务器发送 HTTP 请求的方法，提供 `ILogger` 日志记录接口
 * 可以使用 `CardMessageBuilder` 类来建立一个卡片消息
 
-关于插件系统和插件开发，请查看 [KaiheilaBot 开发文档](https://khlsharp.github.io/)
+关于插件系统和插件开发，请查看 [KaiheilaBot 开发文档](https://khlsharp.github.io/khlsharp-documents/)
 
 ## :calendar: TODO :calendar:
 
