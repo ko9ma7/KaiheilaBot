@@ -69,7 +69,7 @@ namespace KaiheilaBot.Core.Services
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var (pluginFilePath, loader) in loaders)
             {
-                var name = Path.GetFileName(pluginFilePath);
+                var name = Path.GetFileNameWithoutExtension(pluginFilePath);
                 var pluginTypes = loader.LoadDefaultAssembly().GetTypes();
 
                 var iPluginType = pluginTypes.First(t => typeof(IPlugin).IsAssignableFrom(t) && t.IsAbstract is false);

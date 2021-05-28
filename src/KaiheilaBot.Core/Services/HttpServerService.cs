@@ -61,7 +61,7 @@ namespace KaiheilaBot.Core.Services
             return Task.CompletedTask;
         }
 
-        public async Task Router(HttpContext ctx)
+        private async Task Router(HttpContext ctx)
         {
             var pluginId = ctx.Request.Url.Parameters["pluginId"];
             var data = Encoding.UTF8.GetString(ctx.Request.Data);
@@ -70,7 +70,7 @@ namespace KaiheilaBot.Core.Services
             
             string responseData;
 
-            if (_pluginList.Contains(pluginId + ".dll"))
+            if (_pluginList.Contains(pluginId))
             {
                 ctx.Response.StatusCode = 200;
                 responseData = "{\"{status}\":\"success\"}";
