@@ -17,6 +17,7 @@ using KaiheilaBot.Core.Models.Events.PrivateMessageEvents;
 using KaiheilaBot.Core.Models.Events.UserRelatedEvents;
 using KaiheilaBot.Core.Models.Service;
 using KaiheilaBot.Core.Services.IServices;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace KaiheilaBot.Core.Services
@@ -24,14 +25,17 @@ namespace KaiheilaBot.Core.Services
     public class MessageHubService : IMessageHubService
     {
         private readonly ILogger<MessageHubService> _logger;
+        private readonly IServiceProvider _serviceProvider;
 
         private readonly MessageHub _messageHub = new();
         private readonly Dictionary<string, List<Guid>> _subscribers = new();
 
-        public MessageHubService(ILogger<MessageHubService> logger)
+        public MessageHubService(ILogger<MessageHubService> logger,
+            IServiceProvider serviceProvider)
         {
             _logger = logger;
-            
+            _serviceProvider = serviceProvider;
+
             _logger.LogDebug("注册 MessageHub 全局消息 Handler");
             _messageHub.RegisterGlobalHandler((type, obj) =>
             {
@@ -508,7 +512,12 @@ namespace KaiheilaBot.Core.Services
             var sw = new Stopwatch();
             sw.Start();
             // ReSharper disable once PossibleNullReferenceException
-            await (Task) method.Invoke(instance, new object[] {data});
+            await (Task) method.Invoke(instance, new object[]
+            {
+                data,
+                _serviceProvider.GetService<ILogger<IPlugin>>(),
+                _serviceProvider.GetService<IHttpApiRequestService>()
+            });
             sw.Stop();
 
             var dataType = typeof(T) == typeof(HttpServerData) ? 

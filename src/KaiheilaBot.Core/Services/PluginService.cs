@@ -9,6 +9,7 @@ using KaiheilaBot.Core.Services.IServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using McMaster.NETCore.Plugins;
+using Microsoft.Extensions.DependencyInjection;
 using KaiheilaBot.Core.Models.Events;
 
 namespace KaiheilaBot.Core.Services
@@ -16,23 +17,20 @@ namespace KaiheilaBot.Core.Services
     public class PluginService : IPluginService
     {
         private readonly ILogger<PluginService> _logger;
-        private readonly ILogger<IPlugin> _pluginLogger;
         private readonly IMessageHubService _messageHubService;
-        private readonly IHttpApiRequestService _httpApiRequestService;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
 
         private readonly List<PluginInfo> _plugins = new();
         
         public PluginService(ILogger<PluginService> logger,
-            ILogger<IPlugin> pluginLogger,
             IMessageHubService messageHubService,
-            IHttpApiRequestService httpApiRequestService,
+            IServiceProvider serviceProvider,
             IConfiguration configuration)
         {
             _logger = logger;
-            _pluginLogger = pluginLogger;
             _messageHubService = messageHubService;
-            _httpApiRequestService = httpApiRequestService;
+            _serviceProvider = serviceProvider;
             _configuration = configuration;
         }
         
@@ -121,7 +119,9 @@ namespace KaiheilaBot.Core.Services
             // 执行 Initialize 方法初始化插件
             foreach (var pi in _plugins)
             {
-                await pi.GetPluginInstance().Initialize(_pluginLogger, _httpApiRequestService);
+                await pi.GetPluginInstance().Initialize(
+                    _serviceProvider.GetService<ILogger<IPlugin>>(),
+                    _serviceProvider.GetService<IHttpApiRequestService>());
                 _logger.LogInformation($"已载入插件 {pi.GetId()}");
             }
             sw.Stop();
@@ -159,6 +159,9 @@ namespace KaiheilaBot.Core.Services
 
             if (_messageHubService.UnSubscribe(plugin.GetId()) is true)
             {
+                plugin.GetPluginInstance().Unload(
+                    _serviceProvider.GetService<ILogger<IPlugin>>(),
+                    _serviceProvider.GetService<IHttpApiRequestService>());
                 _plugins.Remove(plugin);
             }
         }
