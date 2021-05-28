@@ -8,11 +8,14 @@
         <Description>.NET 开黑啦机器人框架核心，用于插件的开发</Description>
         <Copyright>Copyright © 2021 KHLSharp</Copyright>
         <PackageProjectUrl>https://khlsharp.github.io/khlsharp-documents/</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/KHLSharp/KaiheilaBot/blob/main/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/KHLSharp/KaiheilaBot</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>kaiheila, sdk</PackageTags>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <Version>0.3.0</Version>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <NeutralLanguage>zh</NeutralLanguage>
+        <PackageIcon>khlsharp.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -32,6 +35,17 @@
       <PackageReference Include="System.Threading.AccessControl" Version="5.0.0" />
       <PackageReference Include="Websocket.Client" Version="4.3.30" />
       <PackageReference Include="YamlDotNet" Version="11.1.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\..\khlsharp.png">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+      </None>
+      <None Include="..\..\LICENSE">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+      </None>
     </ItemGroup>
 
 </Project>
