@@ -68,12 +68,12 @@ namespace KaiheilaBot.Core
 
             try
             {
-                Log.Logger.Information("正在启动 Generic Host...");
+                Log.Logger.Information("HOST - 正在启动 Generic Host...");
                 await Run(instanceDirectory);
             }
             catch (Exception ex)
             {
-                Log.Fatal($"Generic Host 因未知错误退出，错误：{ex}");
+                Log.Fatal($"HOST - Generic Host 因未知错误退出，错误：{ex}");
                 return 1;
             }
             finally
@@ -105,6 +105,7 @@ namespace KaiheilaBot.Core
                         .AddSingleton<IBotWebsocketService, BotWebsocketService>()
                         .AddSingleton<IMessageHubService, MessageHubService>()
                         .AddSingleton<IPluginService, PluginService>()
+                        .AddSingleton<IHttpServerService, HttpServerService>()
                         .AddTransient<IHttpApiRequestService, HttpApiRequestService>();
                 })
                 .UseSerilog()

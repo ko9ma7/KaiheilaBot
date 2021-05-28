@@ -9,40 +9,40 @@ using KaiheilaBot.Core.Services.IServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using McMaster.NETCore.Plugins;
+using Microsoft.Extensions.DependencyInjection;
+using KaiheilaBot.Core.Models.Events;
 
 namespace KaiheilaBot.Core.Services
 {
     public class PluginService : IPluginService
     {
         private readonly ILogger<PluginService> _logger;
-        private readonly ILogger<IPlugin> _pluginLogger;
         private readonly IMessageHubService _messageHubService;
-        private readonly IHttpApiRequestService _httpApiRequestService;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
 
-        private readonly Dictionary<string, IPlugin> _plugins = new();
-        private readonly Dictionary<string, List<string>> _pluginRequiredList = new();
+        private readonly List<PluginInfo> _plugins = new();
         
         public PluginService(ILogger<PluginService> logger,
-            ILogger<IPlugin> pluginLogger,
             IMessageHubService messageHubService,
-            IHttpApiRequestService httpApiRequestService,
+            IServiceProvider serviceProvider,
             IConfiguration configuration)
         {
             _logger = logger;
-            _pluginLogger = pluginLogger;
             _messageHubService = messageHubService;
-            _httpApiRequestService = httpApiRequestService;
+            _serviceProvider = serviceProvider;
             _configuration = configuration;
         }
         
         public async Task LoadPlugins()
         {
             var sw = new Stopwatch();
-            _logger.LogInformation("开始加载插件");
+            _logger.LogInformation("PS - 开始加载插件");
             sw.Start();
             var pluginDirectory = Path.Join(_configuration["PluginFolder"], "Plugins");
             var loaders = new Dictionary<string, PluginLoader>();
+
+            // 载入插件 DLL 文件
             foreach (var dir in Directory.GetDirectories(pluginDirectory))
             {
                 var dirName = Path.GetFileName(dir);
@@ -55,69 +55,126 @@ namespace KaiheilaBot.Core.Services
                     pluginDll,
                     sharedTypes: new [] { typeof(IPlugin) });
                 loaders.Add(pluginDll, loader);
+                _logger.LogDebug($"PS - 已加载插件文件 {Path.GetFileName(pluginDll)}");
             }
-            
+
+            var executors = new List<string>();
+            foreach (var typeName in Enum.GetNames(typeof(EnumEvents)))
+            {
+                executors.Add($"I{typeName}Executor");
+                _logger.LogDebug($"PS - 已加载 Event 接口类型 I{typeName}Executor");
+            }
+
+            // 读取插件接口和实例化
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var (pluginFilePath, loader) in loaders)
             {
-                foreach (var pluginType in loader
-                    .LoadDefaultAssembly()
-                    .GetTypes()
-                    .Where(t => typeof(IPlugin).IsAssignableFrom(t) && !t.IsAbstract))
+                var name = Path.GetFileNameWithoutExtension(pluginFilePath);
+                var pluginTypes = loader.LoadDefaultAssembly().GetTypes();
+
+                var iPluginType = pluginTypes.First(t => typeof(IPlugin).IsAssignableFrom(t) && t.IsAbstract is false);
+                var plugin = (IPlugin)Activator.CreateInstance(iPluginType);
+                var pi = new PluginInfo(name, pluginFilePath, plugin);
+
+                // 查找插件中是否存在 HttpServerDataResolver
+                var iHttpServerDataResolverType = pluginTypes.FirstOrDefault(
+                    t => typeof(IHttpServerDataResolver).IsAssignableFrom(t) && t.IsAbstract is false);
+                if (iHttpServerDataResolverType is not null)
                 {
-                    var plugin = (IPlugin)Activator.CreateInstance(pluginType);
-                    var pluginName = Path.GetFileName(pluginFilePath);
-                    _plugins.Add(pluginName, plugin);
+                    var resolver = (IHttpServerDataResolver) Activator.CreateInstance(iHttpServerDataResolverType);
+                    var resolveMethod = iHttpServerDataResolverType.GetMethod("Resolve");
+                    pi.AddExecutor("HttpServerData", resolveMethod, resolver);
+                    _logger.LogDebug($"PS - 已载入插件 {name} 的 Resolver");
                 }
+                
+                foreach (var eventExecutorInterfaceType in executors)
+                {
+                    // 创建 Executor 类型
+                    var iType = Type.GetType(
+                        $"KaiheilaBot.Core.Extension.IEventExecutors.{eventExecutorInterfaceType}");
+
+                    if (iType is null)
+                    {
+                        _logger.LogError($"PS - 创建 Executor 类型时出现错误，ID：{eventExecutorInterfaceType}");
+                        continue;
+                    }
+                    
+                    // 查找插件中是否存在该 Executor 类型
+                    var iPluginExecutorType =
+                        pluginTypes.FirstOrDefault(t => iType.IsAssignableFrom(t) && t.IsAbstract is false);
+
+                    if (iPluginExecutorType is null)
+                    {
+                        continue;
+                    }
+
+                    // 创建实例，创建 Method
+                    var executor = Activator.CreateInstance(iPluginExecutorType);
+                    var executeMethod = iPluginExecutorType.GetMethod("Execute");
+                    pi.AddExecutor(eventExecutorInterfaceType, executeMethod, executor);
+                    _logger.LogDebug($"PS - 已载入插件 {name} 的 Executor - {eventExecutorInterfaceType}");
+                }
+
+                _plugins.Add(pi);
             }
 
-            foreach (var (pluginName, plugin) in _plugins)
+            // 执行 Initialize 方法初始化插件
+            foreach (var pi in _plugins)
             {
-                var required = await plugin.Initialize(_pluginLogger, _httpApiRequestService);
-                _pluginRequiredList.Add(pluginName, required);
-                _logger.LogInformation($"已载入插件 {pluginName}");
+                await pi.GetPluginInstance().Initialize(
+                    _serviceProvider.GetService<ILogger<IPlugin>>(),
+                    _serviceProvider.GetService<IHttpApiRequestService>());
+                _logger.LogInformation($"PS - 已载入插件 {pi.GetId()}");
             }
             sw.Stop();
-            _logger.LogInformation($"已完成插件载入，共 {_plugins.Count} 个，耗时：{sw.ElapsedMilliseconds} 毫秒");
+            _logger.LogInformation($"PS - 已完成插件载入，共 {_plugins.Count} 个，耗时：{sw.ElapsedMilliseconds} 毫秒");
         }
 
         public void SubscribeToMessageHub()
         {
-            _logger.LogInformation("开始注册插件 Execute 方法");
+            _logger.LogInformation("PS - 开始注册插件 Execute 方法");
             var sw = new Stopwatch();
             sw.Start();
-            foreach (var (id, plugin) in _plugins)
+            foreach (var pi in _plugins)
             {
-                var required = _pluginRequiredList[id];
-                _messageHubService.Subscribe(plugin, required, id);
+                _messageHubService.Subscribe(pi);
             }
             sw.Stop();
-            _logger.LogInformation($"已完成插件 Execute 方法注册，耗时 {sw.ElapsedMilliseconds} 毫秒");
+            _logger.LogInformation($"PS - 已完成插件 Execute 方法注册，耗时 {sw.ElapsedMilliseconds} 毫秒");
         }
 
         public void UnloadPlugin()
         {
-            foreach (var (id, _) in _plugins)
+            var unloadGroup = new PluginInfo[_plugins.Count];
+            _plugins.CopyTo(unloadGroup);
+            foreach (var pi in unloadGroup)
             {
-                UnloadPlugin(id);
+                UnloadPlugin(pi.GetId());
             }
         }
         
         public void UnloadPlugin(string pluginUniqueId)
         {
-            if (_plugins.Keys.Contains(pluginUniqueId) || _plugins.Keys.Contains(pluginUniqueId + ".dll"))
+            var plugin = _plugins.FirstOrDefault(p => p.GetId() == pluginUniqueId);
+            if (plugin is null)
             {
-                _messageHubService.UnSubscribe(pluginUniqueId);
+                return;
             }
 
-            _plugins[pluginUniqueId].Unload();
-            _plugins[pluginUniqueId] = null;
-            _plugins.Remove(pluginUniqueId);
+            if (_messageHubService.UnSubscribe(plugin.GetId()) is not true)
+            {
+                return;
+            }
+            plugin.GetPluginInstance().Unload(
+                _serviceProvider.GetService<ILogger<IPlugin>>(),
+                _serviceProvider.GetService<IHttpApiRequestService>());
+            _logger.LogInformation($"PS - 已卸载插件 {plugin.GetId()}");
+            _plugins.Remove(plugin);
         }
 
         public List<string> GetPluginUniqueId()
         {
-            return new(_plugins.Keys);
+            return _plugins.Select(x => x.GetId()).ToList();
         }
     }
 }

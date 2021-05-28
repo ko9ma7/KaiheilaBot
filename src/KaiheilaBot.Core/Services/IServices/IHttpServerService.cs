@@ -2,9 +2,9 @@ using System.Threading.Tasks;
 
 namespace KaiheilaBot.Core.Services.IServices
 {
-    public interface IBotWebsocketService
+    public interface IHttpServerService
     {
-        public Task<int> Connect();
+        public Task Start();
 
         public Task Stop();
     }

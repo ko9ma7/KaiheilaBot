@@ -1,6 +1,6 @@
+using KaiheilaBot.Core.Extension;
 using System;
 using System.Collections.Generic;
-using KaiheilaBot.Core.Extension;
 
 namespace KaiheilaBot.Core.Services.IServices
 {
@@ -10,10 +10,14 @@ namespace KaiheilaBot.Core.Services.IServices
 
         public void Publish(int type, string message, long sn);
 
-        public List<Guid> Subscribe(IPlugin plugin, IEnumerable<string> required, string pluginUniqueId);
+        public void Publish(string pluginId, string message);
+        
+        public List<Guid> Subscribe(PluginInfo pluginInfo);
 
-        public void UnSubscribe(string pluginUniqueId);
+        public bool UnSubscribe(string pluginUniqueId);
 
         public bool CheckSubscribed(string pluginUniqueId);
+
+        public void Dispose();
     }
 }
