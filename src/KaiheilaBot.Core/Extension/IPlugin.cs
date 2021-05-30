@@ -14,9 +14,11 @@ namespace KaiheilaBot.Core.Extension
         /// </summary>
         /// <param name="logger">ILogger 实例</param>
         /// <param name="httpApiRequestService">IHttpApiRequestService 实例</param>
+        /// <param name="pluginPath">插件所在的文件夹路径</param>
         /// <returns></returns>
         public Task Initialize(ILogger<IPlugin> logger, 
-            IHttpApiRequestService httpApiRequestService);
+            IHttpApiRequestService httpApiRequestService,
+            string pluginPath);
 
         /// <summary>
         /// 插件卸载，将在收到卸载指令，程序退出前执行

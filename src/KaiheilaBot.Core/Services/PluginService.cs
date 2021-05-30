@@ -130,7 +130,8 @@ namespace KaiheilaBot.Core.Services
                 sw.Start();
                 await pi.GetPluginInstance().Initialize(
                     _serviceProvider.GetService<ILogger<IPlugin>>(),
-                    _serviceProvider.GetService<IHttpApiRequestService>());
+                    _serviceProvider.GetService<IHttpApiRequestService>(),
+                    Path.GetDirectoryName(pi.GetPath()));
                 sw.Stop();
                 _logger.LogInformation($"PS - 执行插件 {pi.GetId()} 初始化方法完成，耗时：{sw.ElapsedMilliseconds} 毫秒");
             }
