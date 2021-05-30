@@ -116,18 +116,24 @@ namespace KaiheilaBot.Core.Services
                 }
 
                 _plugins.Add(pi);
+                _logger.LogInformation($"PS - 已载入插件 {pi.GetId()}");
             }
 
+            sw.Stop();
+            _logger.LogInformation($"PS - 已完成插件载入，共 {_plugins.Count} 个，耗时：{sw.ElapsedMilliseconds} 毫秒");
+            
             // 执行 Initialize 方法初始化插件
+            _logger.LogInformation("PS - 开始执行插件初始化方法");
             foreach (var pi in _plugins)
             {
+                sw.Reset();
+                sw.Start();
                 await pi.GetPluginInstance().Initialize(
                     _serviceProvider.GetService<ILogger<IPlugin>>(),
                     _serviceProvider.GetService<IHttpApiRequestService>());
-                _logger.LogInformation($"PS - 已载入插件 {pi.GetId()}");
+                sw.Stop();
+                _logger.LogInformation($"PS - 执行插件 {pi.GetId()} 初始化方法完成，耗时：{sw.ElapsedMilliseconds} 毫秒");
             }
-            sw.Stop();
-            _logger.LogInformation($"PS - 已完成插件载入，共 {_plugins.Count} 个，耗时：{sw.ElapsedMilliseconds} 毫秒");
         }
 
         public void SubscribeToMessageHub()
