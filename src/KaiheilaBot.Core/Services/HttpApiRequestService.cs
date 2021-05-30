@@ -22,7 +22,7 @@ namespace KaiheilaBot.Core.Services
         
         private Method _method = Method.GET;
         private string _filePath = string.Empty;
-        private string _resourcePath = "";
+        private string _resourcePath = string.Empty;
         
         public HttpApiRequestService(
             ILogger<HttpApiRequestService> logger,
@@ -223,7 +223,15 @@ namespace KaiheilaBot.Core.Services
                 }
             }
             
-            return await client.ExecuteAsync(request);
+            var response = await client.ExecuteAsync(request);
+
+            _params.Clear();
+            _body.Clear();
+            _method = Method.GET;
+            _filePath = string.Empty;
+            _resourcePath = string.Empty;
+
+            return response;
         }
     }
 }
