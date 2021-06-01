@@ -105,6 +105,7 @@ namespace KaiheilaBot.Core
                         .AddSingleton<IBotWebsocketService, BotWebsocketService>()
                         .AddSingleton<IMessageHubService, MessageHubService>()
                         .AddSingleton<IPluginService, PluginService>()
+                        .AddSingleton<ICommandService, CommandService>()
                         .AddSingleton<IHttpServerService, HttpServerService>()
                         .AddTransient<IHttpApiRequestService, HttpApiRequestService>();
                 })
