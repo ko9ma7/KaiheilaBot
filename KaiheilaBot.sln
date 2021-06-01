@@ -15,6 +15,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source Code", "Source Code", "{70E00AD0-05F1-42BB-815F-48C8377F6F63}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit Test", "Unit Test", "{B79EA4B0-3B28-41C3-AC22-E0599332DF1A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KaiheilaBot.Tests", "src\KaiheilaBot.Tests\KaiheilaBot.Tests.csproj", "{009F8600-22B3-44EF-BF52-21615EF5DE0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +33,10 @@ Global
 		{64C850DE-15B0-423A-ACC1-13DE1B455E29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64C850DE-15B0-423A-ACC1-13DE1B455E29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64C850DE-15B0-423A-ACC1-13DE1B455E29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{009F8600-22B3-44EF-BF52-21615EF5DE0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{009F8600-22B3-44EF-BF52-21615EF5DE0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{009F8600-22B3-44EF-BF52-21615EF5DE0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{009F8600-22B3-44EF-BF52-21615EF5DE0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,6 +44,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{ED59AD0C-339B-45A4-AAAA-464890CA1979} = {70E00AD0-05F1-42BB-815F-48C8377F6F63}
 		{64C850DE-15B0-423A-ACC1-13DE1B455E29} = {70E00AD0-05F1-42BB-815F-48C8377F6F63}
+		{009F8600-22B3-44EF-BF52-21615EF5DE0C} = {B79EA4B0-3B28-41C3-AC22-E0599332DF1A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3F149409-2A41-4193-8660-2507E7C3F582}
